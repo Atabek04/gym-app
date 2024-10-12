@@ -32,7 +32,7 @@ public interface TraineeService {
     @Transactional
     TraineeResponse getTraineeAndTrainers(String username);
 
-    List<Optional<Trainer>> getAssignedTrainers(String username);
+    List<Trainer> getAssignedTrainers(String username);
 
     List<Trainee> findAll();
 

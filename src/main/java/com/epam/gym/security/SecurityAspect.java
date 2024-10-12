@@ -18,23 +18,18 @@ import java.util.Arrays;
 public class SecurityAspect {
     private final AuthenticationService authService;
 
-    // Use the correct pointcut to fetch the @Secured annotation
     @Before("@annotation(secured)")
     public void authAndCheckSecurity(Secured secured) {
-        // Fetch Authorization header (from HttpServletRequest)
         var request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         String authHeader = request.getHeader("Authorization");
 
-        // Authenticate user
         authService.authenticate(authHeader);
 
-        // Retrieve authenticated user
         AuthenticatedUser authenticatedUser = AuthenticationContext.getAuthenticatedUser();
         if (authenticatedUser == null) {
             throw new SecurityException("No authenticated user found");
         }
 
-        // Check roles (if present in @Secured annotation)
         UserRole[] allowedRoles = secured.value();
         boolean authorized = Arrays.stream(allowedRoles)
                 .anyMatch(role -> role.equals(authenticatedUser.getRole()));

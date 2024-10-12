@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -17,11 +17,11 @@ import java.time.ZonedDateTime;
 @AllArgsConstructor
 public class TraineeTrainingFilterRequest {
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
-    private ZonedDateTime periodFrom;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate periodFrom;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
-    private ZonedDateTime periodTo;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate periodTo;
 
     private String trainerName;
 

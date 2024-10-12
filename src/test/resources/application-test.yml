@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+  sql:
+    init:
+      mode: always       # Ensures that SQL scripts are executed during tests
+      schema-locations: classpath:db/create_trainee.sql, classpath:db/create_trainer.sql, classpath:db/create_training.sql, classpath:db/create_user.sql
+      data-locations: classpath:db/insert_trainee.sql, classpath:db/insert_trainers.sql, classpath:db/insert_trainings.sql, classpath:db/insert_user.sql
+  h2:
+    console:
+      enabled: true      # Enable the H2 web console
+      path: /h2-console  # Customize the path for the console
+  jpa:
+    hibernate:
+      ddl-auto: none     # Set to 'none' as you are using SQL scripts to create the schema
+    show-sql: true

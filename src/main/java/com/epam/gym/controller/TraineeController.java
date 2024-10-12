@@ -16,7 +16,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -30,9 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.NO_CONTENT;
-
 @RestController
 @RequestMapping("v1/trainees")
 @RequiredArgsConstructor
@@ -42,85 +39,62 @@ public class TraineeController {
     private final TraineeService traineeService;
 
     @PostMapping
-    public ResponseEntity<UserCredentials> createTrainee(@Valid @RequestBody TraineeRequest request) {
-        log.info("Request to create new trainee");
-        var userCredential = traineeService.create(request);
-        log.info("Trainee created successfully");
-        return ResponseEntity.status(CREATED).body(userCredential);
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserCredentials createTrainee(@Valid @RequestBody TraineeRequest request) {
+        return traineeService.create(request);
     }
 
     @Secured({UserRole.ROLE_TRAINEE})
     @GetMapping("/{username}")
-    public ResponseEntity<TraineeResponse> getTraineeByUsername(@Size(min = 2) @PathVariable String username) {
-        log.info("Fetching details for trainee: {}", username);
-        var trainee = traineeService.getTraineeAndTrainers(username);
-        log.info("Successfully fetched details for trainee: {}", trainee);
-        return ResponseEntity.ok(trainee);
+    public TraineeResponse getTraineeByUsername(@Size(min = 2) @PathVariable String username) {
+        return traineeService.getTraineeAndTrainers(username);
     }
 
     @Secured({UserRole.ROLE_TRAINEE})
     @PutMapping("/{username}")
-    public ResponseEntity<TraineeResponse> updateTrainee(
+    public TraineeResponse updateTrainee(
             @Size(min = 2) @PathVariable String username,
             @Valid @RequestBody TraineeUpdateRequest request
     ) {
-        log.info("Updating trainee: {}", username);
-        var trainer = traineeService.updateTraineeAndUser(request, username);
-        log.info("Successfully updated trainee: {}", username);
-        return ResponseEntity.ok(trainer);
+        return traineeService.updateTraineeAndUser(request, username);
     }
 
     @Secured({UserRole.ROLE_TRAINEE})
     @PutMapping("/{username}/trainers")
-    public ResponseEntity<TraineeResponse> updateTrainers(
+    public TraineeResponse updateTrainers(
             @Size(min = 2) @PathVariable String username,
             @RequestBody List<String> trainerUsernames) {
-        log.info("Updating trainers for trainee: {}", username);
         traineeService.updateTrainers(username, trainerUsernames);
-        var updatedTrainee = traineeService.getTraineeAndTrainers(username);
-        log.info("Successfully updated trainers for trainee: {}", username);
-        return ResponseEntity.ok(updatedTrainee);
+        return traineeService.getTraineeAndTrainers(username);
     }
 
     @Secured({UserRole.ROLE_TRAINEE})
     @GetMapping("/{username}/trainers")
-    public ResponseEntity<List<BasicTrainerResponse>> getNotAssignedTrainers(@Size(min = 2) @PathVariable String username) {
-        log.info("Fetching not assigned trainers for trainee: {}", username);
-        List<BasicTrainerResponse> notAssignedTrainers = traineeService.getNotAssignedTrainers(username);
-        log.info("Successfully fetched not assigned trainers for trainee: {}", username);
-        return ResponseEntity.ok(notAssignedTrainers);
+    public List<BasicTrainerResponse> getNotAssignedTrainers(@Size(min = 2) @PathVariable String username) {
+        return traineeService.getNotAssignedTrainers(username);
     }
 
     @Secured({UserRole.ROLE_TRAINEE})
     @GetMapping("/{username}/trainings")
-    public ResponseEntity<List<TrainingResponse>> getTraineeTrainings(
+    public List<TrainingResponse> getTraineeTrainings(
             @Size(min = 2) @PathVariable String username,
             @Valid @RequestBody TraineeTrainingFilterRequest filterRequest) {
-        log.info("Fetching trainings for trainee: {} with filters: {}", username, filterRequest);
-        List<TrainingResponse> trainings = traineeService.getTraineeTrainings(username, filterRequest);
-        log.info("Successfully fetched trainings for trainee: {}", username);
-        return ResponseEntity.ok(trainings);
+        return traineeService.getTraineeTrainings(username, filterRequest);
     }
 
     @Secured({UserRole.ROLE_TRAINEE})
     @PatchMapping("/{username}/status")
-    public ResponseEntity<Void> updateTraineeStatus(
+    public void updateTraineeStatus(
             @PathVariable("username") String username,
             @RequestBody @Valid UserStatusRequest traineeStatusRequest
     ) {
-        log.info("Updating status for trainee: {}", username);
         traineeService.updateTraineeStatus(username, traineeStatusRequest.isActive());
-        log.info("Successfully updated status for trainee: {}", username);
-        return ResponseEntity.ok().build();
     }
 
     @Secured({UserRole.ROLE_TRAINEE})
     @DeleteMapping("/{username}")
-    @ResponseStatus(NO_CONTENT)
-    public ResponseEntity<String> deleteTrainee(@PathVariable String username) {
-        log.info("Request to delete trainee: {}", username);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteTrainee(@PathVariable String username) {
         traineeService.delete(username);
-        log.info("Trainee deleted successfully: {}", username);
-        return ResponseEntity.status(NO_CONTENT).body("Trainee deleted successfully");
     }
 }

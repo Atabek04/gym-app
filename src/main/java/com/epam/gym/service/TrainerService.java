@@ -12,29 +12,31 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TrainerService {
-    Optional<Trainer> create(Trainer trainer);
+    Trainer create(Trainer trainer);
 
-    void update(Trainer trainer, Long id);
+    UserCredentials create(TrainerRequest request);
+
 
     Optional<Trainer> findById(Long id);
+
+    Optional<Trainer> findByUsername(String username);
 
     List<Trainer> findAll();
 
     List<Trainer> findAllFreeTrainers(String username);
 
-    void delete(Long id);
-
-    void delete(String username);
-
-    UserCredentials create(TrainerRequest request);
-
     TrainerResponse getTrainerAndTrainees(String username);
 
-    TrainerResponse updateTrainerAndUser(TrainerUpdateRequest request, String username);
 
-    List<TrainingResponse> findTrainerTrainingsByFilters(String username, TrainerTrainingFilterRequest filterRequest);
+    List<TrainingResponse> findTrainerTrainings(String username, TrainerTrainingFilterRequest filterRequest);
+
+    void update(Trainer trainer, Long id);
 
     void updateTrainerStatus(String username, Boolean active);
 
-    Optional<Trainer> findByUsername(String s);
+    TrainerResponse updateTrainerAndUser(TrainerUpdateRequest request, String username);
+
+    void delete(Long id);
+
+    void delete(String username);
 }

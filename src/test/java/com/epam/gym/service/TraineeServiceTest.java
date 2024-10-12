@@ -1,7 +1,7 @@
 package com.epam.gym.service;
 
-import com.epam.gym.dao.TraineeDAO;
 import com.epam.gym.model.Trainee;
+import com.epam.gym.repository.TraineeRepository;
 import com.epam.gym.service.impl.TraineeServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 class TraineeServiceTest {
 
     @Mock
-    private TraineeDAO traineeDAO;
+    private TraineeRepository traineeRepository;
 
     @InjectMocks
     private TraineeServiceImpl traineeService;
@@ -35,13 +35,13 @@ class TraineeServiceTest {
     @Test
     void testCreateTrainee() {
         Trainee trainee = new Trainee();
-        when(traineeDAO.save(trainee)).thenReturn(Optional.of(trainee));
+        when(traineeRepository.save(trainee)).thenReturn(trainee);
 
         Optional<Trainee> createdTrainee = traineeService.create(trainee);
 
         assertTrue(createdTrainee.isPresent());
         assertEquals(trainee, createdTrainee.get());
-        verify(traineeDAO, times(1)).save(trainee);
+        verify(traineeRepository, times(1)).save(trainee);
     }
 
 
@@ -50,45 +50,45 @@ class TraineeServiceTest {
         Long traineeId = 1L;
         Trainee trainee = new Trainee();
         trainee.setId(traineeId);
-        when(traineeDAO.findById(traineeId)).thenReturn(Optional.of(trainee));
+        when(traineeRepository.findById(traineeId)).thenReturn(Optional.of(trainee));
 
         Optional<Trainee> foundTrainee = traineeService.findById(traineeId);
 
         assertTrue(foundTrainee.isPresent());
         assertEquals(traineeId, foundTrainee.get().getId());
-        verify(traineeDAO, times(1)).findById(traineeId);
+        verify(traineeRepository, times(1)).findById(traineeId);
     }
 
     @Test
     void testFindTraineeByIdNotFound() {
         Long traineeId = 1L;
-        when(traineeDAO.findById(traineeId)).thenReturn(Optional.empty());
+        when(traineeRepository.findById(traineeId)).thenReturn(Optional.empty());
 
         Optional<Trainee> foundTrainee = traineeService.findById(traineeId);
 
         assertTrue(foundTrainee.isEmpty());
-        verify(traineeDAO, times(1)).findById(traineeId);
+        verify(traineeRepository, times(1)).findById(traineeId);
     }
 
     @Test
     void testFindAllTrainees() {
         List<Trainee> trainees = List.of(new Trainee(), new Trainee());
-        when(traineeDAO.findAll()).thenReturn(trainees);
+        when(traineeRepository.findAll()).thenReturn(trainees);
 
         List<Trainee> foundTrainees = traineeService.findAll();
 
         assertEquals(2, foundTrainees.size());
-        verify(traineeDAO, times(1)).findAll();
+        verify(traineeRepository, times(1)).findAll();
     }
 
     @Test
     void testFindAllTraineesEmpty() {
-        when(traineeDAO.findAll()).thenReturn(Collections.emptyList());
+        when(traineeRepository.findAll()).thenReturn(Collections.emptyList());
 
         List<Trainee> foundTrainees = traineeService.findAll();
 
         assertTrue(foundTrainees.isEmpty());
-        verify(traineeDAO, times(1)).findAll();
+        verify(traineeRepository, times(1)).findAll();
     }
 
     @Test
@@ -97,6 +97,6 @@ class TraineeServiceTest {
 
         traineeService.delete(traineeId);
 
-        verify(traineeDAO, times(1)).delete(traineeId);
+        verify(traineeRepository, times(1)).deleteById(traineeId);
     }
 }

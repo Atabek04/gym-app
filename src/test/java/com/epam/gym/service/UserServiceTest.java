@@ -1,8 +1,8 @@
 package com.epam.gym.service;
 
-import com.epam.gym.dao.UserDAO;
 import com.epam.gym.exception.ResourceNotFoundException;
 import com.epam.gym.model.User;
+import com.epam.gym.repository.UserRepository;
 import com.epam.gym.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,9 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,7 +24,7 @@ import static org.mockito.Mockito.when;
 class UserServiceTest {
 
     @Mock
-    private UserDAO userDAO;
+    private UserRepository userRepository;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -44,24 +41,13 @@ class UserServiceTest {
                 .lastName("User")
                 .username("Test.User")
                 .build();
-        when(userDAO.save(user)).thenReturn(Optional.of(user));
+        when(userRepository.save(user)).thenReturn(user);
 
         Optional<User> createdUser = userService.create(user);
 
         assertTrue(createdUser.isPresent());
         assertEquals("Test.User", createdUser.get().getUsername());
-        verify(userDAO, times(1)).save(user);
-    }
-
-    @Test
-    void testCreateUserFail() {
-        User user = new User();
-        when(userDAO.save(user)).thenReturn(Optional.empty());
-
-        Optional<User> createdUser = userService.create(user);
-
-        assertTrue(createdUser.isEmpty());
-        verify(userDAO, times(1)).save(user);
+        verify(userRepository, times(1)).save(user);
     }
 
     @Test
@@ -79,22 +65,22 @@ class UserServiceTest {
                 .password("oldPassword")
                 .build();
 
-        when(userDAO.findById(1L)).thenReturn(Optional.of(existingUser));
-        when(userDAO.update(user, 1L)).thenReturn(Optional.of(user));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
+        when(userRepository.save(user)).thenReturn(user);
 
         Optional<User> updatedUser = userService.update(user, 1L);
 
         assertTrue(updatedUser.isPresent());
         assertEquals(1L, updatedUser.get().getId());
-        verify(userDAO, times(1)).findById(1L);
-        verify(userDAO, times(1)).update(user, 1L);
+        verify(userRepository, times(1)).findById(1L);
+        verify(userRepository, times(1)).save(user);
     }
 
     @Test
     void testUpdateUserNotFound() {
         User user = new User();
         user.setId(1L);
-        when(userDAO.update(user, 1L)).thenReturn(Optional.empty());
+        when(userRepository.save(user)).thenReturn(user);
 
         ResourceNotFoundException exception = assertThrows(
                 ResourceNotFoundException.class,
@@ -103,41 +89,40 @@ class UserServiceTest {
         );
 
         assertEquals("User not found with id: 1", exception.getMessage());
-        verify(userDAO, times(1)).findById(1L);
-        verify(userDAO, never()).update(any(User.class), anyLong());
+        verify(userRepository, times(1)).findById(1L);
     }
 
     @Test
     void testFindUserById() {
         User user = new User();
         user.setId(1L);
-        when(userDAO.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         Optional<User> foundUser = userService.findById(1L);
 
         assertTrue(foundUser.isPresent());
         assertEquals(1L, foundUser.get().getId());
-        verify(userDAO, times(1)).findById(1L);
+        verify(userRepository, times(1)).findById(1L);
     }
 
     @Test
     void testFindAllUsers() {
         User user1 = new User();
         User user2 = new User();
-        when(userDAO.findAll()).thenReturn(List.of(user1, user2));
+        when(userRepository.findAll()).thenReturn(List.of(user1, user2));
 
         List<User> users = userService.findAll();
 
         assertNotNull(users);
         assertEquals(2, users.size());
-        verify(userDAO, times(1)).findAll();
+        verify(userRepository, times(1)).findAll();
     }
 
     @Test
     void testDeleteUser() {
         userService.delete(1L);
 
-        verify(userDAO, times(1)).delete(1L);
+        verify(userRepository, times(1)).deleteById(1L);
     }
 
     @Test
@@ -145,46 +130,43 @@ class UserServiceTest {
         User user = new User();
         user.setUsername("testUser");
         user.setPassword("testPass");
-        when(userDAO.findByUsername("testUser", "testPass")).thenReturn(user);
+        when(userRepository.findByUsernameAndPassword("testUser", "testPass")).thenReturn(user);
 
         Optional<User> foundUser = userService.findByUsernameAndPassword("testUser", "testPass");
 
         assertTrue(foundUser.isPresent());
         assertEquals("testUser", foundUser.get().getUsername());
-        verify(userDAO, times(1)).findByUsername("testUser", "testPass");
+        verify(userRepository, times(1)).findByUsernameAndPassword("testUser", "testPass");
     }
 
     @Test
     void testChangeUserPassword() {
         userService.changePassword("testUser", "newPass");
-
-        verify(userDAO, times(1)).changePassword("testUser", "newPass");
+        verify(userRepository, times(1)).changePassword("testUser", "newPass");
     }
 
     @Test
     void testActivateUser() {
         userService.activateUser("testUser");
-
-        verify(userDAO, times(1)).activateUser("testUser");
+        verify(userRepository, times(1)).activateUser("testUser");
     }
 
     @Test
     void testDeactivateUser() {
         userService.deactivateUser("testUser");
-
-        verify(userDAO, times(1)).deactivateUser("testUser");
+        verify(userRepository, times(1)).deactivateUser("testUser");
     }
 
     @Test
     void testFindUserByUsername() {
         User user = new User();
         user.setUsername("testUser");
-        when(userDAO.findUserByUsername("testUser")).thenReturn(Optional.of(user));
+        when(userRepository.findByUsername("testUser")).thenReturn(user);
 
         Optional<User> foundUser = userService.findUserByUsername("testUser");
 
         assertTrue(foundUser.isPresent());
         assertEquals("testUser", foundUser.get().getUsername());
-        verify(userDAO, times(1)).findUserByUsername("testUser");
+        verify(userRepository, times(1)).findByUsername("testUser");
     }
 }

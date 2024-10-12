@@ -1,8 +1,5 @@
 package com.epam.gym.service.impl;
 
-import com.epam.gym.dao.TraineeDAO;
-import com.epam.gym.dao.TrainerDAO;
-import com.epam.gym.dao.TrainingDAO;
 import com.epam.gym.dto.BasicTrainerResponse;
 import com.epam.gym.dto.TraineeRequest;
 import com.epam.gym.dto.TraineeResponse;
@@ -16,6 +13,9 @@ import com.epam.gym.mapper.TrainingMapper;
 import com.epam.gym.model.Trainee;
 import com.epam.gym.model.Trainer;
 import com.epam.gym.model.Training;
+import com.epam.gym.repository.TraineeRepository;
+import com.epam.gym.repository.TrainerRepository;
+import com.epam.gym.repository.TrainingRepository;
 import com.epam.gym.service.TraineeService;
 import com.epam.gym.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -35,25 +35,29 @@ import static com.epam.gym.mapper.TraineeMapper.toTraineeResponse;
 import static com.epam.gym.mapper.UserMapper.toUser;
 import static com.epam.gym.util.Constants.DUMMY_TRAINING_DURATION;
 import static com.epam.gym.util.Constants.DUMMY_TRAINING_NAME;
+import static com.epam.gym.util.UpdateEntityFields.updateTraineeFields;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
 public class TraineeServiceImpl implements TraineeService {
-    private final TraineeDAO traineeDAO;
+
+    private final TraineeRepository traineeRepository;
     private final UserService userService;
-    private final TrainerDAO trainerDAO;
-    private final TrainingDAO trainingDAO;
+    private final TrainerRepository trainerRepository;
+    private final TrainingRepository trainingRepository;
 
     @Transactional
     @Override
     public UserCredentials create(TraineeRequest request) {
         log.info("Creating trainee");
         var createdUser = userService.create(toUser(request))
-                .orElseThrow(() -> new IllegalStateException("Failed to create user"));
-        traineeDAO.save(toTrainee(request, createdUser));
+                .orElseThrow(() -> new IllegalStateException("Failed to create user for trainee"));
+
+        traineeRepository.save(toTrainee(request, createdUser));
         log.info("Trainee created successfully with username: {}", createdUser.getUsername());
+
         return UserCredentials.builder()
                 .username(createdUser.getUsername())
                 .password(createdUser.getPassword())
@@ -63,12 +67,17 @@ public class TraineeServiceImpl implements TraineeService {
     @Override
     public Optional<Trainee> create(Trainee trainee) {
         log.info("Creating trainee with ID: {}", trainee.getId());
-        return traineeDAO.save(trainee);
+        return Optional.of(traineeRepository.save(trainee));
     }
 
     @Override
-    public void update(Trainee trainee, Long id) {
-        traineeDAO.update(trainee, id);
+    public void update(Trainee updatedTrainee, Long id) {
+        Trainee existingTrainee = traineeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Trainee not found with id: " + id));
+
+        updateTraineeFields(existingTrainee, updatedTrainee);
+
+        traineeRepository.save(existingTrainee);
         log.info("Trainee with ID: {} updated successfully.", id);
     }
 
@@ -84,10 +93,7 @@ public class TraineeServiceImpl implements TraineeService {
         update(toTrainee(request, updatedUser), oldTrainee.getId());
 
         log.info("Fetching assigned trainers for trainee: {}", username);
-        var trainerList = getAssignedTrainers(username)
-                .stream()
-                .map(trainer -> trainer.orElseThrow(() -> new ResourceNotFoundException("Trainer is null")))
-                .toList();
+        var trainerList = getAssignedTrainers(username).stream().toList();
 
         var updatedTrainee = findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Trainee with this username not found"));
@@ -98,27 +104,27 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     public Optional<Trainee> findById(Long id) {
-        return traineeDAO.findById(id);
+        return traineeRepository.findById(id);
     }
 
     @Override
     public List<Trainee> findAll() {
         log.info("Fetching all trainees.");
-        return traineeDAO.findAll();
+        return traineeRepository.findAll();
     }
 
     @Override
     public Optional<Trainee> findByUsername(String username) {
         log.info("Fetching trainee by username: {}", username);
-        return traineeDAO.findByUsername(username);
+        return traineeRepository.findByUserUsername(username);
     }
 
+    @Transactional
     @Override
     public void updateTraineeStatus(String username, Boolean isActive) {
         if (isActive != null) {
             log.info("Updating trainee status for username: {}", username);
-            var trainee = traineeDAO.findByUsername(username)
-                    .orElseThrow(() -> new ResourceNotFoundException("Trainee with username " + username + " not found"));
+            var trainee = getTraineeByUsername(username);
 
             var user = trainee.getUser();
             user.setActive(isActive);
@@ -134,53 +140,48 @@ public class TraineeServiceImpl implements TraineeService {
     @Transactional
     public void updateTrainers(String username, List<String> trainerUsernames) {
         log.info("Updating trainers for trainee: {}", username);
-
-        Trainee trainee = traineeDAO.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Trainee with username " + username + " not found"));
-
-        List<Training> currentTrainings = trainingDAO.findByTraineeUsername(username);
-        Set<String> currentTrainerUsernames = currentTrainings.stream()
-                .map(training -> training.getTrainer().getUser().getUsername())
-                .collect(Collectors.toSet());
+        Trainee trainee = getTraineeByUsername(username);
+        Set<String> currentTrainerUsernames = getCurrentTrainerUsernames(username);
 
         if (trainerUsernames.isEmpty()) {
-            log.info("Removing all trainers for trainee: {}", username);
-            trainingDAO.deleteAll(currentTrainings);
+            removeAllTrainers(username);
             return;
         }
 
+        addNewTrainers(trainerUsernames, currentTrainerUsernames, trainee);
+        removeTrainersNotInList(trainerUsernames, username);
+
+        log.info("Successfully updated trainers for trainee: {}", username);
+    }
+
+    private Set<String> getCurrentTrainerUsernames(String username) {
+        List<Training> currentTrainings = trainingRepository.findByTraineeUsername(username);
+        return currentTrainings.stream()
+                .map(training -> training.getTrainer().getUser().getUsername())
+                .collect(Collectors.toSet());
+    }
+
+    private void removeAllTrainers(String username) {
+        log.info("Removing all trainers for trainee: {}", username);
+        List<Training> currentTrainings = trainingRepository.findByTraineeUsername(username);
+        trainingRepository.deleteAll(currentTrainings);
+    }
+
+    private void addNewTrainers(List<String> trainerUsernames, Set<String> currentTrainerUsernames, Trainee trainee) {
         List<String> notFoundTrainers = new ArrayList<>();
 
         for (String trainerUsername : trainerUsernames) {
             if (!currentTrainerUsernames.contains(trainerUsername)) {
-                Trainer trainer = trainerDAO.findByUsername(trainerUsername)
+                Trainer trainer = trainerRepository.findByUserUsername(trainerUsername)
                         .orElseGet(() -> {
                             notFoundTrainers.add(trainerUsername);
                             return null;
                         });
 
                 if (trainer != null) {
-                    Training training = new Training();
-                    training.setTrainee(trainee);
-                    training.setTrainer(trainer);
-                    training.setTrainingName(DUMMY_TRAINING_NAME);
-                    training.setTrainingDate(ZonedDateTime.now());
-                    training.setTrainingTypeId(trainer.getTrainingTypeId());
-                    training.setTrainingDuration(DUMMY_TRAINING_DURATION);
-
-                    trainingDAO.save(training);
-                    log.info("Training created for trainee: {} with trainer: {}", username, trainerUsername);
+                    createNewTraining(trainee, trainer);
                 }
             }
-        }
-
-        List<Training> trainingsToRemove = currentTrainings.stream()
-                .filter(training -> !trainerUsernames.contains(training.getTrainer().getUser().getUsername()))
-                .toList();
-
-        if (!trainingsToRemove.isEmpty()) {
-            log.info("Removing trainers not in the new list for trainee: {}", username);
-            trainingDAO.deleteAll(trainingsToRemove);
         }
 
         if (!notFoundTrainers.isEmpty()) {
@@ -189,62 +190,82 @@ public class TraineeServiceImpl implements TraineeService {
         }
     }
 
+    private void createNewTraining(Trainee trainee, Trainer trainer) {
+        Training training = new Training();
+        training.setTrainee(trainee);
+        training.setTrainer(trainer);
+        training.setTrainingName(DUMMY_TRAINING_NAME);
+        training.setTrainingDate(ZonedDateTime.now());
+        training.setTrainingTypeId(trainer.getTrainingTypeId());
+        training.setTrainingDuration(DUMMY_TRAINING_DURATION);
+
+        trainingRepository.save(training);
+        log.info("Training created for trainee: {} with trainer: {}", trainee.getUser().getUsername(),
+                trainer.getUser().getUsername());
+    }
+
+    private void removeTrainersNotInList(List<String> trainerUsernames, String username) {
+        List<Training> trainingsToRemove = trainingRepository.findByTraineeUsername(username).stream()
+                .filter(training -> !trainerUsernames.contains(training.getTrainer().getUser().getUsername()))
+                .toList();
+
+        if (!trainingsToRemove.isEmpty()) {
+            log.info("Removing trainers not in the new list for trainee: {}", username);
+            trainingRepository.deleteAll(trainingsToRemove);
+        }
+    }
+
     @Transactional
     @Override
     public TraineeResponse getTraineeAndTrainers(String username) {
         log.info("Fetching trainee and trainers by username: {}", username);
-        var trainerList = getAssignedTrainers(username)
-                .stream()
-                .map(trainer -> trainer.orElseThrow(() -> new ResourceNotFoundException("Trainer is null")))
-                .toList();
-
-        var trainee = findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Trainee not found"));
+        var trainerList = getAssignedTrainers(username).stream().toList();
+        var trainee = getTraineeByUsername(username);
         log.info("Successfully fetched trainee and trainers for username: {}", username);
         return toTraineeResponse(trainee, trainerList);
     }
 
     @Override
-    public List<Optional<Trainer>> getAssignedTrainers(String username) {
-        return traineeDAO.getAssignedTrainers(username);
+    public List<Trainer> getAssignedTrainers(String username) {
+        return traineeRepository.getAssignedTrainers(username);
     }
 
     @Override
     public List<BasicTrainerResponse> getNotAssignedTrainers(String username) {
         log.info("Fetching not assigned trainers for trainee: {}", username);
-        return traineeDAO.getNotAssignedTrainers(username)
-                .stream()
+        var trainers = traineeRepository.getNotAssignedTrainers(username).stream()
                 .map(TrainerMapper::toBasicTrainerResponse)
                 .toList();
+        log.info("Successfully fetched not assigned trainers for trainee: {}", username);
+        return trainers;
     }
 
     @Override
     public List<TrainingResponse> getTraineeTrainings(String username, TraineeTrainingFilterRequest filterRequest) {
         log.info("Fetching trainings for trainee: {} with filters: {}", username, filterRequest);
-        Trainee trainee = traineeDAO.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Trainee with username " + username + " not found"));
+        Trainee trainee = getTraineeByUsername(username);
+        List<Training> trainings = trainingRepository.findTrainingsByFilters(trainee.getId(),
+                filterRequest.getPeriodFrom(), filterRequest.getPeriodTo(), filterRequest.getTrainerName(), filterRequest.getTrainingType().getId());
+        log.info("Successfully fetched trainings for trainee: {}", username);
+        return trainings.stream().map(TrainingMapper::toTrainingResponse).toList();
+    }
 
-        List<Training> trainings = trainingDAO.findTrainingsByFilters(trainee.getId(), filterRequest);
-        return trainings.stream()
-                .map(TrainingMapper::toTrainingResponse)
-                .toList();
+    private Trainee getTraineeByUsername(String username) {
+        return traineeRepository.findByUserUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Trainee with username " + username + " not found"));
     }
 
     @Override
     public void delete(Long id) {
         log.info("Deleting trainee with ID: {}", id);
-        traineeDAO.delete(id);
+        traineeRepository.deleteById(id);
         log.info("Trainee with ID: {} deleted successfully.", id);
     }
 
     @Override
     public void delete(String username) {
-        if (traineeDAO.findByUsername(username).isEmpty()) {
-            log.error("Trainee with this username is not found");
-            throw new ResourceNotFoundException("Trainee not found while deleting");
-        }
         log.info("Deleting trainee by username: {}", username);
-        traineeDAO.delete(username);
+        traineeRepository.deleteByUserUsername(username);
         log.info("Trainee with username: {} deleted successfully.", username);
     }
 }

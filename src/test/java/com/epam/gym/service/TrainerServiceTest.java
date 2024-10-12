@@ -1,7 +1,7 @@
 package com.epam.gym.service;
 
-import com.epam.gym.dao.TrainerDAO;
 import com.epam.gym.model.Trainer;
+import com.epam.gym.repository.TrainerRepository;
 import com.epam.gym.service.impl.TrainerServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
@@ -22,7 +23,7 @@ import static org.mockito.Mockito.when;
 class TrainerServiceTest {
 
     @Mock
-    private TrainerDAO trainerDAO;
+    private TrainerRepository trainerRepository;
 
     @InjectMocks
     private TrainerServiceImpl trainerService;
@@ -35,13 +36,13 @@ class TrainerServiceTest {
     @Test
     void testCreateTrainer() {
         Trainer trainer = new Trainer();
-        when(trainerDAO.save(trainer)).thenReturn(Optional.of(trainer));
+        when(trainerRepository.save(trainer)).thenReturn(trainer);
 
-        Optional<Trainer> createdTrainer = trainerService.create(trainer);
+        Trainer createdTrainer = trainerService.create(trainer);
 
-        assertTrue(createdTrainer.isPresent());
-        assertEquals(trainer, createdTrainer.get());
-        verify(trainerDAO, times(1)).save(trainer);
+        assertThat(createdTrainer).isNotNull();
+        assertThat(createdTrainer).isEqualTo(trainer);
+        verify(trainerRepository, times(1)).save(trainer);
     }
 
     @Test
@@ -49,57 +50,57 @@ class TrainerServiceTest {
         Long trainerId = 1L;
         Trainer trainer = new Trainer();
         trainer.setId(trainerId);
-        when(trainerDAO.findById(trainerId)).thenReturn(Optional.of(trainer));
+        when(trainerRepository.findById(trainerId)).thenReturn(Optional.of(trainer));
 
         Optional<Trainer> foundTrainer = trainerService.findById(trainerId);
 
         assertTrue(foundTrainer.isPresent());
         assertEquals(trainerId, foundTrainer.get().getId());
-        verify(trainerDAO, times(1)).findById(trainerId);
+        verify(trainerRepository, times(1)).findById(trainerId);
     }
 
     @Test
     void testFindTrainerByIdNotFound() {
         Long trainerId = 1L;
-        when(trainerDAO.findById(trainerId)).thenReturn(Optional.empty());
+        when(trainerRepository.findById(trainerId)).thenReturn(Optional.empty());
 
         Optional<Trainer> foundTrainer = trainerService.findById(trainerId);
 
         assertTrue(foundTrainer.isEmpty());
-        verify(trainerDAO, times(1)).findById(trainerId);
+        verify(trainerRepository, times(1)).findById(trainerId);
     }
 
     @Test
     void testFindAllTrainers() {
         List<Trainer> trainers = List.of(new Trainer(), new Trainer());
-        when(trainerDAO.findAll()).thenReturn(trainers);
+        when(trainerRepository.findAll()).thenReturn(trainers);
 
         List<Trainer> foundTrainers = trainerService.findAll();
 
         assertEquals(2, foundTrainers.size());
-        verify(trainerDAO, times(1)).findAll();
+        verify(trainerRepository, times(1)).findAll();
     }
 
     @Test
     void testFindAllTrainersEmpty() {
-        when(trainerDAO.findAll()).thenReturn(Collections.emptyList());
+        when(trainerRepository.findAll()).thenReturn(Collections.emptyList());
 
         List<Trainer> foundTrainers = trainerService.findAll();
 
         assertTrue(foundTrainers.isEmpty());
-        verify(trainerDAO, times(1)).findAll();
+        verify(trainerRepository, times(1)).findAll();
     }
 
     @Test
     void testFindAllFreeTrainers() {
         String username = "someUsername";
         List<Trainer> freeTrainers = List.of(new Trainer(), new Trainer());
-        when(trainerDAO.findAllFreeTrainers(username)).thenReturn(freeTrainers);
+        when(trainerRepository.findAllFreeTrainers(username)).thenReturn(freeTrainers);
 
         List<Trainer> foundFreeTrainers = trainerService.findAllFreeTrainers(username);
 
         assertEquals(2, foundFreeTrainers.size());
-        verify(trainerDAO, times(1)).findAllFreeTrainers(username);
+        verify(trainerRepository, times(1)).findAllFreeTrainers(username);
     }
 
     @Test
@@ -108,6 +109,6 @@ class TrainerServiceTest {
 
         trainerService.delete(trainerId);
 
-        verify(trainerDAO, times(1)).delete(trainerId);
+        verify(trainerRepository, times(1)).deleteById(trainerId);
     }
 }
