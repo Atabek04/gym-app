@@ -32,11 +32,11 @@ public class UpdateEntityFields {
     }
 
     public static void updateTrainingFields(Training existingTraining, Training updatedTraining) {
-            existingTraining.setTrainingName(updatedTraining.getTrainingName());
-            existingTraining.setTrainingTypeId(updatedTraining.getTrainingTypeId());
-            existingTraining.setTrainingDate(updatedTraining.getTrainingDate());
-            existingTraining.setTrainingDuration(updatedTraining.getTrainingDuration());
-            existingTraining.setTrainee(updatedTraining.getTrainee());
-            existingTraining.setTrainer(updatedTraining.getTrainer());
+        existingTraining.setTrainingName(updatedTraining.getTrainingName());
+        existingTraining.setTrainingTypeId(updatedTraining.getTrainingTypeId());
+        existingTraining.setTrainingDate(updatedTraining.getTrainingDate());
+        existingTraining.setTrainingDuration(updatedTraining.getTrainingDuration());
+        existingTraining.setTrainee(updatedTraining.getTrainee());
+        existingTraining.setTrainer(updatedTraining.getTrainer());
     }
 }

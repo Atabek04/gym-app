@@ -83,7 +83,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> findByUsernameAndPassword(String username, String password) {
         log.info("Authenticating user with username: {}", username);
-        return Optional.ofNullable(userRepo.findByUsernameAndPassword(username, password));
+        var user = Optional.ofNullable(userRepo.findByUsernameAndPassword(username, password));
+        if (user.isEmpty()) {
+            log.warn("Failed login attempt for user: {}", username);
+            throw new AuthenticationException("Failed to login with username: " + username);
+        }
+        log.info("Successful login for user: {}", username);
+        return user;
     }
 
     @Override
@@ -115,6 +121,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void validateAndChangePassword(UserNewPasswordCredentials credentials) {
+        log.info("Password change requested for user: {}", credentials.username());
         log.info("Validating old password and changing password for user with username: {}", credentials.username());
         var user = findUserByUsername(credentials.username())
                 .orElseThrow(() -> new ResourceNotFoundException("User with this username not found"));

@@ -68,8 +68,8 @@ class TrainerControllerIntegrationTest {
         MockitoAnnotations.openMocks(this);
 
         mockMvc = MockMvcBuilders.standaloneSetup(trainerController)
-                .setControllerAdvice(new GlobalExceptionHandler()) // Add global exception handler if needed
-                .addFilter(new CharacterEncodingFilter("UTF-8", true)) // Handle character encoding
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .addFilter(new CharacterEncodingFilter("UTF-8", true))
                 .build();
     }
 

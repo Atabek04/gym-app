@@ -4,22 +4,25 @@ import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Component;
 
+import static com.epam.gym.util.Constants.AVAILABLE;
+import static com.epam.gym.util.Constants.EXTERNAL_SERVICE;
+import static com.epam.gym.util.Constants.NOT_AVAILABLE;
+
 @Component
 public class ExternalServiceHealthIndicator implements HealthIndicator {
 
     @Override
     public Health health() {
-        boolean serviceUp = checkExternalServiceHealth();
+        boolean isServiceUp = checkExternalServiceHealth();
 
-        if (serviceUp) {
-            return Health.up().withDetail("External Service", "Available").build();
+        if (isServiceUp) {
+            return Health.up().withDetail(EXTERNAL_SERVICE, AVAILABLE).build();
         } else {
-            return Health.down().withDetail("External Service", "Not Available").build();
+            return Health.down().withDetail(EXTERNAL_SERVICE, NOT_AVAILABLE).build();
         }
     }
 
     private boolean checkExternalServiceHealth() {
-        // Some logic for future external services
         return true;
     }
 }

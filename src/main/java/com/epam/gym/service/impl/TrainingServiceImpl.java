@@ -97,11 +97,13 @@ public class TrainingServiceImpl implements TrainingService {
     @Override
     public List<TrainingTypeResponse> getAllTrainingTypes() {
         log.info("Fetching all training types.");
-        return trainingRepository.getAllTrainingTypes()
+        var trainings = trainingRepository.getAllTrainingTypes()
                 .stream()
                 .map(tr -> TrainingTypeResponse.builder()
                         .trainingTypeId(tr.getId().intValue())
                         .trainingType(TrainingType.valueOf(tr.getTrainingTypeName()))
                         .build()).toList();
+        log.info("Successfully fetched all training types.");
+        return trainings;
     }
 }

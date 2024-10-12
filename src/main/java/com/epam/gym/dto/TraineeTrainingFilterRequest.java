@@ -17,10 +17,10 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class TraineeTrainingFilterRequest {
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate periodFrom;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate periodTo;
 
     private String trainerName;

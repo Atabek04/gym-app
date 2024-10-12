@@ -5,6 +5,7 @@ import com.epam.gym.model.Trainer;
 import com.epam.gym.model.Training;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -29,6 +30,7 @@ public interface TraineeRepository extends JpaRepository<Trainee, Long> {
             """)
     List<Trainer> getNotAssignedTrainers(String username);
 
+    @Transactional
     void deleteByUserUsername(String username);
 
     @Query("""

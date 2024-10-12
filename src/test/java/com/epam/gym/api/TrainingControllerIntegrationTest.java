@@ -55,13 +55,13 @@ class TrainingControllerIntegrationTest {
     public void setup() {
         MockitoAnnotations.openMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(trainingController)
-                .setControllerAdvice(new GlobalExceptionHandler()) // Set up global exception handling
-                .addFilter(new CharacterEncodingFilter("UTF-8", true)) // Handle UTF-8 encoding
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .addFilter(new CharacterEncodingFilter("UTF-8", true))
                 .build();
     }
 
     private String getBasicAuthHeader() {
-        String credentials = "Bat.Man" + ":" + "123"; // Use the credentials for authentication
+        String credentials = "Bat.Man" + ":" + "123";
         byte[] base64Credentials = Base64.getEncoder().encode(credentials.getBytes(StandardCharsets.UTF_8));
         return "Basic " + new String(base64Credentials, StandardCharsets.UTF_8);
     }
@@ -124,7 +124,7 @@ class TrainingControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidTrainingRequestJson))
                 .andDo(print())
-                .andExpect(status().isBadRequest()); // Expect 400 Bad Request
+                .andExpect(status().isBadRequest());
     }
 
     @Test

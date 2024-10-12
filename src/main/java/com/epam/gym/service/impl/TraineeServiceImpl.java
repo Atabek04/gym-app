@@ -150,6 +150,8 @@ public class TraineeServiceImpl implements TraineeService {
 
         addNewTrainers(trainerUsernames, currentTrainerUsernames, trainee);
         removeTrainersNotInList(trainerUsernames, username);
+
+        log.info("Successfully updated trainers for trainee: {}", username);
     }
 
     private Set<String> getCurrentTrainerUsernames(String username) {
@@ -231,9 +233,11 @@ public class TraineeServiceImpl implements TraineeService {
     @Override
     public List<BasicTrainerResponse> getNotAssignedTrainers(String username) {
         log.info("Fetching not assigned trainers for trainee: {}", username);
-        return traineeRepository.getNotAssignedTrainers(username).stream()
+        var trainers = traineeRepository.getNotAssignedTrainers(username).stream()
                 .map(TrainerMapper::toBasicTrainerResponse)
                 .toList();
+        log.info("Successfully fetched not assigned trainers for trainee: {}", username);
+        return trainers;
     }
 
     @Override
@@ -242,6 +246,7 @@ public class TraineeServiceImpl implements TraineeService {
         Trainee trainee = getTraineeByUsername(username);
         List<Training> trainings = trainingRepository.findTrainingsByFilters(trainee.getId(),
                 filterRequest.getPeriodFrom(), filterRequest.getPeriodTo(), filterRequest.getTrainerName(), filterRequest.getTrainingType().getId());
+        log.info("Successfully fetched trainings for trainee: {}", username);
         return trainings.stream().map(TrainingMapper::toTrainingResponse).toList();
     }
 

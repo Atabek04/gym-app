@@ -2,11 +2,11 @@ package com.epam.gym.actuator;
 
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-@Service
+@Component
 public class ActiveUsersMetricService {
 
     private final AtomicInteger activeUsers = new AtomicInteger(0);

@@ -46,8 +46,8 @@ public interface TrainingRepository extends JpaRepository<Training, Long> {
     @Query("FROM Training t WHERE t.trainee.user.username = :username")
     List<Training> findByTraineeUsername(String username);
 
-    @Transactional
     @Modifying
+    @Transactional
     @Query("DELETE FROM Training t WHERE t IN :trainings")
     void deleteAll(List<Training> trainings);
 }

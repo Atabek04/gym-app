@@ -6,10 +6,12 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 
+import static com.epam.gym.util.Constants.FREE_DISK_SPACE;
+
 @Component
 public class DiskSpaceHealthIndicator implements HealthIndicator {
 
-    private static final long THRESHOLD = 100 * 1024 * 1024;  // 100 MB threshold
+    private static final long THRESHOLD = 100L * 1024L * 1024L;  // 100 MB threshold
 
     @Override
     public Health health() {
@@ -17,9 +19,9 @@ public class DiskSpaceHealthIndicator implements HealthIndicator {
         long freeSpace = disk.getFreeSpace();
 
         if (freeSpace >= THRESHOLD) {
-            return Health.up().withDetail("Free Disk Space", freeSpace).build();
+            return Health.up().withDetail(FREE_DISK_SPACE, freeSpace).build();
         } else {
-            return Health.down().withDetail("Free Disk Space", freeSpace).build();
+            return Health.down().withDetail(FREE_DISK_SPACE, freeSpace).build();
         }
     }
 }

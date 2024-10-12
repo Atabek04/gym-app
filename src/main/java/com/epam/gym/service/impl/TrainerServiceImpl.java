@@ -116,6 +116,7 @@ public class TrainerServiceImpl implements TrainerService {
         log.info("Fetching trainings for trainer: {} using filters: {}", username, filterRequest);
         var trainings = trainerRepository.findTrainerTrainingsByFilters(username, filterRequest.getPeriodFrom(),
                 filterRequest.getPeriodTo(), filterRequest.getTraineeName());
+        log.info("Successfully fetched trainings for trainer: {}", username);
         return trainings.stream()
                 .map(TrainingMapper::toTrainingResponse)
                 .toList();
@@ -159,5 +160,6 @@ public class TrainerServiceImpl implements TrainerService {
                 .orElseThrow(() -> new ResourceNotFoundException("Trainer not found"))
                 .getId();
         delete(trainerId);
+        log.info("Trainer deleted successfully: {}", username);
     }
 }
