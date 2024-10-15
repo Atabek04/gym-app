@@ -10,16 +10,18 @@ spring:
   sql:
     init:
       mode: never
-      schema-locations: classpath:db/migration/V11__create_user.sql,
-        classpath:db/migration/V12__create_trainee.sql,
-        classpath:db/migration/V13__create_training_type.sql,
-        classpath:db/migration/V14__create_trainer.sql,
-        classpath:db/migration/V15__create_training.sql
-      data-locations: classpath:db/migration/V16__insert_user.sql,
-        classpath:db/migration/V17__insert_training_type.sql,
-        classpath:db/migration/V18__insert_trainee.sql,
-        classpath:db/migration/V19__insert_trainers.sql,
-        classpath:db/migration/V20__insert_trainings.sql
+      schema-locations:
+        - classpath:db/migration/V11__create_user.sql
+        - classpath:db/migration/V12__create_trainee.sql
+        - classpath:db/migration/V13__create_training_type.sql
+        - classpath:db/migration/V14__create_trainer.sql
+        - classpath:db/migration/V15__create_training.sql
+      data-locations:
+        - classpath:db/migration/V16__insert_user.sql
+        - classpath:db/migration/V17__insert_training_type.sql
+        - classpath:db/migration/V18__insert_trainee.sql
+        - classpath:db/migration/V19__insert_trainers.sql
+        - classpath:db/migration/V20__insert_trainings.sql
 
   jpa:
     hibernate:
@@ -33,4 +35,4 @@ management:
   endpoints:
     web:
       exposure:
-        include: 'health,info'
+        include: 'health,info,prometheus'

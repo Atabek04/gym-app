@@ -5,10 +5,10 @@ import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CustomMetricService {
+public class RequestMetricsService {
     private final Counter requestCounter;
 
-    public CustomMetricService(MeterRegistry meterRegistry) {
+    public RequestMetricsService(MeterRegistry meterRegistry) {
         this.requestCounter = meterRegistry.counter("custom_requests_total", "type", "request");
     }
 

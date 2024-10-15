@@ -19,6 +19,7 @@ spring:
     locations: classpath:db/migration
     enabled: true
     clean-disabled: true
+    baseline-version: 11
 
 logging:
   level:

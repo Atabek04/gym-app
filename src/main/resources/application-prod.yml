@@ -19,6 +19,7 @@ spring:
     baseline-on-migrate: true
     clean-disabled: true
     default-schema: public
+    baseline-version: 11
 
 logging:
   level:
