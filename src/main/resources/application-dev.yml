@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/devdb;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE
+    username: sa
+    password: password
+
+  h2:
+    console:
+      enabled: true
+  sql:
+    init:
+      mode: never
+      schema-locations: classpath:db/migration/V11__create_user.sql,
+        classpath:db/migration/V12__create_trainee.sql,
+        classpath:db/migration/V13__create_training_type.sql,
+        classpath:db/migration/V14__create_trainer.sql,
+        classpath:db/migration/V15__create_training.sql
+      data-locations: classpath:db/migration/V16__insert_user.sql,
+        classpath:db/migration/V17__insert_training_type.sql,
+        classpath:db/migration/V18__insert_trainee.sql,
+        classpath:db/migration/V19__insert_trainers.sql,
+        classpath:db/migration/V20__insert_trainings.sql
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+logging:
+  level:
+    root: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: 'health,info'

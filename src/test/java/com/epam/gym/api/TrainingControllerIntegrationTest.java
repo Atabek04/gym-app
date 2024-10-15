@@ -1,6 +1,6 @@
 package com.epam.gym.api;
 
-import com.epam.gym.config.ApplicationConfig;
+import com.epam.gym.GymApp;
 import com.epam.gym.controller.TrainingController;
 import com.epam.gym.dto.TrainingTypeResponse;
 import com.epam.gym.exception.GlobalExceptionHandler;
@@ -37,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {ApplicationConfig.class})
+@ContextConfiguration(classes = {GymApp.class})
 @RequiredArgsConstructor
 @WebAppConfiguration
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
