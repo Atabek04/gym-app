@@ -21,3 +21,8 @@ management:
     metrics:
       export:
         enabled: true
+
+security:
+  jwt:
+    secret-key: my-32-character-ultra-secure-and-ultra-long-secret
+    issuer: Atabek

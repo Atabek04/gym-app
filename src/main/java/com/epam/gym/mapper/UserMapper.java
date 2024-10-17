@@ -5,7 +5,7 @@ import com.epam.gym.dto.TraineeUpdateRequest;
 import com.epam.gym.dto.TrainerRequest;
 import com.epam.gym.dto.TrainerUpdateRequest;
 import com.epam.gym.model.User;
-import com.epam.gym.security.UserRole;
+import com.epam.gym.model.UserRole;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass

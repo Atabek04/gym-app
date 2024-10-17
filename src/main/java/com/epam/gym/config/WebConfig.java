@@ -1,6 +1,6 @@
 package com.epam.gym.config;
 
-import com.epam.gym.security.AuthenticationInterceptor;
+import com.epam.gym.security.depricated.AuthenticationInterceptor;
 import com.epam.gym.util.LoggingInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

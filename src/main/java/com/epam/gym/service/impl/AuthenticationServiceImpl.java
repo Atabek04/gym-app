@@ -1,8 +1,8 @@
 package com.epam.gym.service.impl;
 
 import com.epam.gym.exception.AuthenticationException;
-import com.epam.gym.security.AuthenticatedUser;
-import com.epam.gym.security.AuthenticationContext;
+import com.epam.gym.security.depricated.AuthenticatedUser;
+import com.epam.gym.security.depricated.AuthenticationContext;
 import com.epam.gym.service.AuthenticationService;
 import com.epam.gym.service.UserService;
 import lombok.RequiredArgsConstructor;
