@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -27,13 +26,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@Valid @RequestBody UserCredentials credentials) {
-        try {
-            return ResponseEntity.ok(authService.login(credentials));
-        } catch (SecurityException e) {
-            var response = new HashMap<String, String>();
-            response.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-        }
+        return ResponseEntity.ok(authService.login(credentials));
     }
 
     @PostMapping("/refresh-token")

@@ -17,6 +17,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -53,6 +54,9 @@ public class User {
 
     @Column(name = "is_account_locked", columnDefinition = "boolean default true")
     private boolean isAccountNonLocked;
+
+    @Column(name = "lockout_time")
+    private LocalDateTime lockoutTime;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role")

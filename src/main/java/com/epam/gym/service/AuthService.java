@@ -2,6 +2,7 @@ package com.epam.gym.service;
 
 import com.epam.gym.dto.UserCredentials;
 import com.epam.gym.dto.UserNewPasswordCredentials;
+import com.epam.gym.exception.AuthenticationException;
 import com.epam.gym.exception.ResourceNotFoundException;
 import com.epam.gym.security.jwt.JwtUtil;
 import com.epam.gym.security.jwt.RefreshTokenService;
@@ -12,6 +13,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +29,19 @@ public class AuthService {
 
     public Map<String, String> login(UserCredentials credentials) {
         var user = userService.findByUsername(credentials.username())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new AuthenticationException("User not found"));
+
+        if (!user.isAccountNonLocked() && user.getLockoutTime() != null) {
+            // Check if 5 minutes have passed since lockout
+            if (Duration.between(user.getLockoutTime(), LocalDateTime.now()).toMinutes() < 5) {
+                throw new AuthenticationException("Account is locked. Please try again later.");
+            } else {
+                user.setAccountNonLocked(true);
+                user.setFailedLoginAttempts(0);
+                user.setLockoutTime(null);
+                userService.create(user);
+            }
+        }
 
         try {
             authenticationManager.authenticate(
@@ -48,16 +63,20 @@ public class AuthService {
         } catch (BadCredentialsException e) {
             int attempts = user.getFailedLoginAttempts() + 1;
             user.setFailedLoginAttempts(attempts);
+
             if (attempts >= 3) {
                 user.setAccountNonLocked(false);
+                user.setLockoutTime(LocalDateTime.now());
             }
             userService.create(user);
 
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", "Invalid credentials. Attempts: " + attempts);
-            throw new SecurityException(errorResponse.toString());
+            return errorResponse;
         }
     }
+
+
 
     public Map<String, String> refreshToken(String refreshToken) {
         var token = refreshTokenService.validateRefreshToken(refreshToken);

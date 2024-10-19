@@ -24,6 +24,11 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOrigins("http://localhost:8090")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowCredentials(true);
+
+        registry.addMapping("/v1/**")
+                .allowedOrigins("http://localhost:8090")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowCredentials(true);
     }
 
     @Bean
