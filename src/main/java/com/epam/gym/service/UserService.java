@@ -25,7 +25,7 @@ public interface UserService {
 
     void deactivateUser(String username);
 
-    Optional<User> findUserByUsername(String username);
+    Optional<User> findByUsername(String username);
 
     void validateAndChangePassword(UserNewPasswordCredentials credentials);
 }

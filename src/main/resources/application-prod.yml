@@ -14,7 +14,7 @@ spring:
 
   flyway:
     schemas: public
-    enabled: true
+    enabled: false
     locations: classpath:db/migration
     baseline-on-migrate: true
     clean-disabled: true

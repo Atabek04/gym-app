@@ -48,6 +48,12 @@ public class User {
     @Column(name = "is_active", nullable = false)
     private boolean isActive;
 
+    @Column(name = "failed_login_count", columnDefinition = "integer default 0")
+    private int failedLoginAttempts;
+
+    @Column(name = "is_account_locked", columnDefinition = "boolean default true")
+    private boolean isAccountNonLocked;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private UserRole role;

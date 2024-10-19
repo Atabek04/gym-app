@@ -8,6 +8,7 @@ import com.epam.gym.repository.UserRepository;
 import com.epam.gym.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,7 @@ import static com.epam.gym.util.UserUtils.generateUsername;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepo;
+    private final PasswordEncoder passwordEncoder;
 
     public User saveUser(User user) {
         if (user.getId() == null) {
@@ -33,7 +35,8 @@ public class UserServiceImpl implements UserService {
                     user.getLastName(),
                     userRepo.findAllUsernames());
             user.setUsername(username);
-            user.setPassword(generateRandomPassword());
+            var encodedPassword = passwordEncoder.encode(generateRandomPassword());
+            user.setPassword(encodedPassword);
         } else {
             log.info("Updating existing user with ID: {}", user.getId());
         }
@@ -55,7 +58,8 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
         user.setUsername(oldUser.getUsername());
-        user.setPassword(oldUser.getPassword());
+        var encodedPassword = passwordEncoder.encode(oldUser.getPassword());
+        user.setPassword(encodedPassword);
         user.setId(id);
 
         return Optional.ofNullable(saveUser(user));
@@ -114,16 +118,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> findUserByUsername(String username) {
+    public Optional<User> findByUsername(String username) {
         log.info("Fetching user by username: {}", username);
-        return Optional.ofNullable(userRepo.findByUsername(username));
+        return userRepo.findByUsername(username);
     }
 
     @Override
     public void validateAndChangePassword(UserNewPasswordCredentials credentials) {
         log.info("Password change requested for user: {}", credentials.username());
         log.info("Validating old password and changing password for user with username: {}", credentials.username());
-        var user = findUserByUsername(credentials.username())
+        var user = findByUsername(credentials.username())
                 .orElseThrow(() -> new ResourceNotFoundException("User with this username not found"));
         if (user.getPassword().equals(credentials.oldPassword())) {
             changePassword(credentials.username(), credentials.newPassword());

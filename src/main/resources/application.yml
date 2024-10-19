@@ -7,7 +7,7 @@ spring:
       ddl-auto: none
 
   profiles:
-    active: dev
+    active: stg
 
 logging:
   level:
@@ -24,5 +24,9 @@ management:
 
 security:
   jwt:
-    secret-key: my-32-character-ultra-secure-and-ultra-long-secret
-    issuer: Atabek
+    # noinspection SpringBootApplicationYaml
+    secret-key-original: my-32-character-ultra-secure-and-ultra-long-secret
+    secret-key: bXktMzItY2hhcmFjdGVyLXVsdHJhLXNlY3VyZS1hbmQtdWx0cmEtbG9uZy1zZWNyZXQ=
+    issuer: GymApp
+    expiration-ms: 3600000  # 1 hour
+    refresh-token-expiration-ms: 604800000  # 7 days

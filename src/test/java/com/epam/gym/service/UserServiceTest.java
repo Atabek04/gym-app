@@ -161,9 +161,9 @@ class UserServiceTest {
     void testFindUserByUsername() {
         User user = new User();
         user.setUsername("testUser");
-        when(userRepository.findByUsername("testUser")).thenReturn(user);
+        when(userRepository.findByUsername("testUser")).thenReturn(Optional.of(user));
 
-        Optional<User> foundUser = userService.findUserByUsername("testUser");
+        Optional<User> foundUser = userService.findByUsername("testUser");
 
         assertTrue(foundUser.isPresent());
         assertEquals("testUser", foundUser.get().getUsername());
