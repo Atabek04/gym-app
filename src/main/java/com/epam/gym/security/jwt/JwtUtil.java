@@ -25,7 +25,7 @@ public class JwtUtil {
     private String issuer;
 
     @Value("${security.jwt.expiration-ms}")
-    private long expirationTime = 1000 * 60 * 60 * 10L;
+    private long expirationTime;
 
     public Claims extractAllClaims(String token) {
         return Jwts.parser()
@@ -49,10 +49,10 @@ public class JwtUtil {
     private String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
                 .claims()
-                    .issuer(issuer)
-                    .subject(subject)
-                    .add("roles", claims.get("roles"))
-                    .and()
+                .issuer(issuer)
+                .subject(subject)
+                .add("roles", claims.get("roles"))
+                .and()
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(getSecretKey(secret))

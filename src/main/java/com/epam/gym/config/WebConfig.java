@@ -29,6 +29,11 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOrigins("http://localhost:8090")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowCredentials(true);
+
+        registry.addMapping("/swagger-ui/**")
+                .allowedOrigins("http://localhost:8090")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowCredentials(true);
     }
 
     @Bean

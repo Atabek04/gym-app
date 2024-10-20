@@ -77,7 +77,6 @@ public class AuthService {
     }
 
 
-
     public Map<String, String> refreshToken(String refreshToken) {
         var token = refreshTokenService.validateRefreshToken(refreshToken);
         var userDetails = userDetailsService.loadUserByUsername(token.getUser().getUsername());

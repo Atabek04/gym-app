@@ -1,6 +1,6 @@
 INSERT INTO trainer (id, user_id, training_type_id)
 VALUES (1, 51, 2),  -- STRENGTH_TRAINING
-       (2, 52, 7), -- FUNCTIONAL_FITNESS
+       (2, 52, 7),  -- FUNCTIONAL_FITNESS
        (3, 53, 4),  -- PILATES
        (4, 54, 5),  -- CARDIO_TRAINING
        (5, 55, 6),  -- HIIT
@@ -40,4 +40,4 @@ VALUES (1, 51, 2),  -- STRENGTH_TRAINING
        (39, 89, 11),-- OUTDOOR_FITNESS
        (40, 90, 8),-- GROUP_FITNESS
        (41, 91, 2),-- STRENGTH_TRAINING
-       (42, 92, 6);  -- HIIT
+       (42, 92, 6); -- HIIT

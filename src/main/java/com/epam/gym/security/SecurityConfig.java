@@ -31,8 +31,8 @@ public class SecurityConfig {
                 .headers(headers ->
                         headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))    // X-Frame-Options
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/h2-console/**").permitAll()
-                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/h2-console/**", "/actuator/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/v1/auth/**").permitAll()
                         .requestMatchers("/v1/trainees/**").hasRole("TRAINEE")
                         .requestMatchers("/v1/trainers/**").hasRole("TRAINER")

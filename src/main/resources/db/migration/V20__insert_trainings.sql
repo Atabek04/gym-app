@@ -38,4 +38,4 @@ VALUES (1, 1, 2, 'Iron Strength', 2, '2022-01-15T09:00:00Z', 120),              
        (37, 36, 37, 'Yoga Retreat', 3, '2023-07-11T09:15:00Z', 120),              -- YOGA
        (38, 37, 38, 'Functional Core', 7, '2023-11-18T10:30:00Z', 90),            -- FUNCTIONAL_FITNESS
        (39, 38, 39, 'Martial Arts Conditioning', 9, '2022-12-25T12:00:00Z', 100), -- MARTIAL_ARTS
-       (40, 39, 40, 'Outdoor Adventure', 11, '2023-10-12T14:30:00Z', 120);         -- OUTDOOR_FITNESS
+       (40, 39, 40, 'Outdoor Adventure', 11, '2023-10-12T14:30:00Z', 120); -- OUTDOOR_FITNESS
