@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  spring-boot-app:
+    build: .
+    container_name: spring-boot-app
+    ports:
+      - "8091:8090"  # Expose internal port 8090 on Docker's port 8091
+    networks:
+      - monitoring
+
+  prometheus:
+    image: prom/prometheus:v2.29.2
+    container_name: prometheus
+    volumes:
+      - ./src/main/resources/prometheus.yml:/etc/prometheus/prometheus.yml  # Mount the Prometheus config
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    ports:
+      - "9090:9090"  # Expose Prometheus
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:8.3.3
+    container_name: grafana
+    ports:
+      - "3000:3000"  # Expose Grafana
+    volumes:
+      - grafana-data:/var/lib/grafana  # Store Grafana data in a volume
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
+
+volumes:
+  grafana-data:

@@ -1,6 +1,5 @@
 package com.epam.gym.model;
 
-import com.epam.gym.security.UserRole;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,6 +17,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -48,6 +48,15 @@ public class User {
 
     @Column(name = "is_active", nullable = false)
     private boolean isActive;
+
+    @Column(name = "failed_login_count", columnDefinition = "integer default 0")
+    private int failedLoginAttempts;
+
+    @Column(name = "is_account_locked", columnDefinition = "boolean default true")
+    private boolean isAccountNonLocked;
+
+    @Column(name = "lockout_time")
+    private LocalDateTime lockoutTime;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role")

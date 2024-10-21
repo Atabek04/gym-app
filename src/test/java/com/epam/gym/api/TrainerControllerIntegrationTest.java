@@ -1,7 +1,7 @@
 package com.epam.gym.api;
 
+import com.epam.gym.GymApp;
 import com.epam.gym.api.parameterResolver.TrainerServiceParameterResolver;
-import com.epam.gym.config.ApplicationConfig;
 import com.epam.gym.controller.TrainerController;
 import com.epam.gym.dto.TrainerRequest;
 import com.epam.gym.dto.TrainerResponse;
@@ -49,7 +49,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith({SpringExtension.class, TrainerServiceParameterResolver.class})
-@ContextConfiguration(classes = {ApplicationConfig.class})
+@ContextConfiguration(classes = {GymApp.class})
 @RequiredArgsConstructor
 @WebAppConfiguration
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

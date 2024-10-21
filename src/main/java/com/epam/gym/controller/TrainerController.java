@@ -7,13 +7,15 @@ import com.epam.gym.dto.TrainerUpdateRequest;
 import com.epam.gym.dto.TrainingResponse;
 import com.epam.gym.dto.UserCredentials;
 import com.epam.gym.dto.UserStatusRequest;
-import com.epam.gym.security.Secured;
-import com.epam.gym.security.UserRole;
 import com.epam.gym.service.TrainerService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -31,23 +33,27 @@ import java.util.List;
 @RequestMapping("v1/trainers")
 @RequiredArgsConstructor
 @Slf4j
+@Secured("ROLE_TRAINER")
+@Tag(name = "Trainer")
 public class TrainerController {
 
     private final TrainerService trainerService;
 
+    @Operation(summary = "Create a new trainer", description = "Adds a new trainer to the system.")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PermitAll
     public UserCredentials createTrainer(@Valid @RequestBody TrainerRequest request) {
         return trainerService.create(request);
     }
 
-    @Secured({UserRole.ROLE_TRAINER})
+    @Operation(summary = "Get trainer by username", description = "Retrieves a trainer and their assigned trainees by username.")
     @GetMapping("/{username}")
     public TrainerResponse getTrainerByUsername(@PathVariable("username") String username) {
         return trainerService.getTrainerAndTrainees(username);
     }
 
-    @Secured({UserRole.ROLE_TRAINER})
+    @Operation(summary = "Update trainer information", description = "Updates the details of an existing trainer.")
     @PutMapping("/{username}")
     public TrainerResponse updateTrainer(
             @PathVariable("username") String username,
@@ -56,14 +62,14 @@ public class TrainerController {
         return trainerService.updateTrainerAndUser(request, username);
     }
 
-    @Secured({UserRole.ROLE_TRAINER})
+    @Operation(summary = "Delete a trainer", description = "Removes a trainer from the system.")
     @DeleteMapping("/{username}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTrainer(@PathVariable("username") String username) {
         trainerService.delete(username);
     }
 
-    @Secured({UserRole.ROLE_TRAINER})
+    @Operation(summary = "Get trainings for a trainer", description = "Retrieves all training sessions assigned to a specific trainer.")
     @GetMapping("/{username}/trainings")
     public List<TrainingResponse> getTrainerTrainings(
             @PathVariable("username") String username,
@@ -72,7 +78,7 @@ public class TrainerController {
         return trainerService.findTrainerTrainings(username, filterRequest);
     }
 
-    @Secured({UserRole.ROLE_TRAINER})
+    @Operation(summary = "Update trainer status", description = "Updates the active status of the specified trainer.")
     @PatchMapping("/{username}/status")
     public void updateTrainerStatus(
             @PathVariable("username") String username,
