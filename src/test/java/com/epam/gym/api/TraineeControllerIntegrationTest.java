@@ -2,6 +2,7 @@ package com.epam.gym.api;
 
 import com.epam.gym.GymApp;
 import com.epam.gym.api.parameterResolver.TraineeServiceParameterResolver;
+import com.epam.gym.config.security.jwt.JwtUtil;
 import com.epam.gym.controller.TraineeController;
 import com.epam.gym.dto.BasicTrainerResponse;
 import com.epam.gym.dto.TraineeRequest;
@@ -11,8 +12,8 @@ import com.epam.gym.dto.UserCredentials;
 import com.epam.gym.exception.GlobalExceptionHandler;
 import com.epam.gym.model.Trainee;
 import com.epam.gym.model.TrainingType;
+import com.epam.gym.model.UserRole;
 import com.epam.gym.service.TraineeService;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
@@ -23,19 +24,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
-import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -51,16 +50,22 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ActiveProfiles("test")
-@ExtendWith({SpringExtension.class, TraineeServiceParameterResolver.class})
-@ContextConfiguration(classes = {GymApp.class})
-@RequiredArgsConstructor
-@WebAppConfiguration
+@SpringBootTest(classes = GymApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("local")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@ExtendWith(TraineeServiceParameterResolver.class)
 class TraineeControllerIntegrationTest {
+
     private static MockMvc mockMvc;
+
     @Mock
     private TraineeService traineeService;
+
+    @Mock
+    private JwtUtil jwtUtil;
+
+    private String jwtToken;
+
     @InjectMocks
     private TraineeController traineeController;
 
@@ -68,16 +73,19 @@ class TraineeControllerIntegrationTest {
     public void setup() {
         MockitoAnnotations.openMocks(this);
 
-        mockMvc = MockMvcBuilders.standaloneSetup(traineeController)
-                .setControllerAdvice(new GlobalExceptionHandler()) // Add global exception handler if needed
-                .addFilter(new CharacterEncodingFilter("UTF-8", true)) // Handle character encoding
+        UserDetails userDetails = User.builder()
+                .username("Yard.Clubb")
+                .password("123")
+                .roles("TRAINEE")
                 .build();
-    }
 
-    private String getBasicAuthHeader() {
-        String credentials = "Man.Super" + ":" + "123";
-        byte[] base64Credentials = Base64.getEncoder().encode(credentials.getBytes(StandardCharsets.UTF_8));
-        return "Basic " + new String(base64Credentials, StandardCharsets.UTF_8);
+        when(JwtUtil.generateToken(userDetails, UserRole.ROLE_TRAINEE)).thenReturn("mocked-jwt-token");
+        jwtToken = "Bearer " + JwtUtil.generateToken(userDetails, UserRole.ROLE_TRAINEE);
+
+        mockMvc = MockMvcBuilders.standaloneSetup(traineeController)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .addFilter(new CharacterEncodingFilter("UTF-8", true))
+                .build();
     }
 
     @BeforeAll
@@ -110,7 +118,7 @@ class TraineeControllerIntegrationTest {
         when(traineeService.create(any(TraineeRequest.class))).thenReturn(mockUserCredentials);
 
         mockMvc.perform(post("/v1/trainees")
-                        .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader())
+                        .header(HttpHeaders.AUTHORIZATION, getAuthToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(traineeRequestJson))
                 .andDo(print())
@@ -128,7 +136,7 @@ class TraineeControllerIntegrationTest {
                 """;
 
         mockMvc.perform(post("/v1/trainees")
-                        .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader())
+                        .header(HttpHeaders.AUTHORIZATION, getAuthToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(traineeRequestJson))
                 .andDo(print())
@@ -147,7 +155,7 @@ class TraineeControllerIntegrationTest {
         when(traineeService.getTraineeAndTrainers("Halid.Ismail")).thenReturn(mockTraineeResponse);
 
         mockMvc.perform(get("/v1/trainees/Halid.Ismail")
-                        .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader())
+                        .header(HttpHeaders.AUTHORIZATION, getAuthToken())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -178,7 +186,7 @@ class TraineeControllerIntegrationTest {
         when(traineeService.updateTraineeAndUser(any(), eq("Halid.Ismail"))).thenReturn(mockResponse);
 
         mockMvc.perform(put("/v1/trainees/Halid.Ismail")
-                        .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader())
+                        .header(HttpHeaders.AUTHORIZATION, getAuthToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updateRequestJson))
                 .andDo(print())
@@ -197,7 +205,7 @@ class TraineeControllerIntegrationTest {
                 """;
 
         mockMvc.perform(put("/v1/trainees/Halid.Ismail")
-                        .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader())
+                        .header(HttpHeaders.AUTHORIZATION, getAuthToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidUpdateRequestJson))
                 .andDo(print())
@@ -221,7 +229,7 @@ class TraineeControllerIntegrationTest {
         when(traineeService.getTraineeAndTrainers("Halid.Ismail")).thenReturn(mockResponse);
 
         mockMvc.perform(put("/v1/trainees/Halid.Ismail/trainers")
-                        .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader())
+                        .header(HttpHeaders.AUTHORIZATION, getAuthToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("[\"Super.Trainer\", \"Ivan.Urgant\", \"Bat.Man\"]"))
                 .andDo(print())
@@ -241,7 +249,7 @@ class TraineeControllerIntegrationTest {
         when(traineeService.getTraineeAndTrainers("Halid.Ismail")).thenReturn(mockTraineeResponse);
 
         mockMvc.perform(put("/v1/trainees/Halid.Ismail/trainers")
-                        .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader())
+                        .header(HttpHeaders.AUTHORIZATION, getAuthToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("[]"))
                 .andDo(print())
@@ -258,7 +266,7 @@ class TraineeControllerIntegrationTest {
         when(traineeService.getNotAssignedTrainers("Halid.Ismail")).thenReturn(mockTrainers);
 
         mockMvc.perform(get("/v1/trainees/Halid.Ismail/trainers")
-                        .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader())
+                        .header(HttpHeaders.AUTHORIZATION, getAuthToken())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -282,7 +290,7 @@ class TraineeControllerIntegrationTest {
                 """;
 
         mockMvc.perform(get("/v1/trainees/Halid.Ismail/trainings")
-                        .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader())
+                        .header(HttpHeaders.AUTHORIZATION, getAuthToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(filterRequestJson))
                 .andDo(print())
@@ -299,7 +307,7 @@ class TraineeControllerIntegrationTest {
                 """;
 
         mockMvc.perform(patch("/v1/trainees/Halid.Ismail/status")
-                        .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader())
+                        .header(HttpHeaders.AUTHORIZATION, getAuthToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updateStatusRequestJson))
                 .andDo(print())
@@ -312,8 +320,20 @@ class TraineeControllerIntegrationTest {
         when(traineeService.findByUsername("Halid.Ismail")).thenReturn(Optional.of(new Trainee()));
 
         mockMvc.perform(delete("/v1/trainees/Halid.Ismail")
-                        .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader()))
+                        .header(HttpHeaders.AUTHORIZATION, getAuthToken()))
                 .andDo(print())
                 .andExpect(status().isNoContent());
+    }
+
+    private String getAuthToken() {
+        UserDetails userDetails = User.builder()
+                .username("Yard.Clubb")
+                .password("123")
+                .roles("TRAINEE")
+                .build();
+
+        jwtToken = JwtUtil.generateToken(userDetails, UserRole.ROLE_TRAINEE);
+
+        return "Bearer " + jwtToken;
     }
 }

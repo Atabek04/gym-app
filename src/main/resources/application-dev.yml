@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:h2:file:./data/devdb;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE
-    username: sa
-    password: password
+    url: ${DB_H2_DEV_URL}
+    username: ${DB_H2_DEV_USERNAME}
+    password: ${DB_H2_DEV_PASSWORD}
 
   h2:
     console:

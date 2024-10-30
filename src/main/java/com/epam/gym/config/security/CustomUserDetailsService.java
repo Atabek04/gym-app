@@ -1,4 +1,4 @@
-package com.epam.gym.security;
+package com.epam.gym.config.security;
 
 import com.epam.gym.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

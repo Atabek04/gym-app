@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +27,9 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @InjectMocks
     private UserServiceImpl userService;
 
@@ -40,7 +44,10 @@ class UserServiceTest {
                 .firstName("Test")
                 .lastName("User")
                 .username("Test.User")
+                .password("plainPassword")
                 .build();
+
+        when(passwordEncoder.encode("plainPassword")).thenReturn("encodedPassword");
         when(userRepository.save(user)).thenReturn(user);
 
         Optional<User> createdUser = userService.create(user);
@@ -56,6 +63,7 @@ class UserServiceTest {
                 .id(1L)
                 .firstName("John")
                 .lastName("Doe")
+                .password("newPassword")
                 .build();
         User existingUser = User.builder()
                 .id(1L)
@@ -65,6 +73,7 @@ class UserServiceTest {
                 .password("oldPassword")
                 .build();
 
+        when(passwordEncoder.encode("newPassword")).thenReturn("encodedNewPassword");
         when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
         when(userRepository.save(user)).thenReturn(user);
 

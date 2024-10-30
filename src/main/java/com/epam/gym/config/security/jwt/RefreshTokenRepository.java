@@ -1,4 +1,4 @@
-package com.epam.gym.security.jwt;
+package com.epam.gym.config.security.jwt;
 
 import com.epam.gym.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;

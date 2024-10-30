@@ -5,9 +5,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+  config:
+    import: "file:./env.properties"
 
   profiles:
-    active: stg
+    active: local
 
 logging:
   level:
@@ -26,8 +28,12 @@ management:
 security:
   jwt:
     # noinspection SpringBootApplicationYaml
-    secret-key-original: my-32-character-ultra-secure-and-ultra-long-secret
-    secret-key: bXktMzItY2hhcmFjdGVyLXVsdHJhLXNlY3VyZS1hbmQtdWx0cmEtbG9uZy1zZWNyZXQ=
+    secret-key: ${JWT_SECRET_KEY}
     issuer: GymApp
     expiration-ms: 3600000  # 1 hour
     refresh-token-expiration-ms: 604800000  # 7 days
+
+cors:
+  allowed:
+    origins: "http://localhost:8090"
+    methods: "GET,POST,PUT,DELETE,OPTIONS"

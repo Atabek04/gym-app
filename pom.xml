@@ -33,7 +33,7 @@
         <flyway.version>10.19.0</flyway.version>
         <flyway-plugin.version>10.19.0</flyway-plugin.version>
         <jwt.version>0.12.6</jwt.version>
-        <springdoc.version>1.8.0</springdoc.version>
+        <springdoc-openapi.version>2.1.0</springdoc-openapi.version>
     </properties>
 
     <dependencies>
@@ -184,7 +184,7 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.1.0</version>
+            <version>${springdoc-openapi.version}</version>
         </dependency>
 
         <!--    ==== Additional Tools ====    -->
@@ -233,13 +233,6 @@
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>${flyway-plugin.version}</version>
-                <configuration>
-                    <url>jdbc:postgresql://localhost:5432/gym_app</url>
-                    <user>postgres</user>
-                    <password>91926499</password>
-                    <schemas>stage</schemas>
-                    <baselineOnMigrate>true</baselineOnMigrate>
-                </configuration>
             </plugin>
         </plugins>
     </build>

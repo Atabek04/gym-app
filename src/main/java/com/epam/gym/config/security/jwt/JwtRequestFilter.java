@@ -1,5 +1,6 @@
-package com.epam.gym.security.jwt;
+package com.epam.gym.config.security.jwt;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -26,8 +27,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class JwtRequestFilter extends OncePerRequestFilter {
-
-    private final JwtUtil jwtUtil;
+    private static final int BEARER_PREFIX_LENGTH = 7;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -37,19 +37,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
+            String token = authHeader.substring(BEARER_PREFIX_LENGTH);
             try {
-                var claims = jwtUtil.extractAllClaims(token);
-                var username = claims.getSubject();
-                String role = (String) claims.get("roles");
-                log.debug("Authenticated user's role: {}", role);
-                List<GrantedAuthority> authorities = new ArrayList<>();
-                if (role != null) {
-                    authorities.add(new SimpleGrantedAuthority(role));
-                }
-                var authentication =
-                        new UsernamePasswordAuthenticationToken(username, null, authorities);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                var claims = JwtUtil.extractAllClaims(token);
+                processClaimsAndSetAuthentication(claims);
             } catch (MalformedJwtException | UnsupportedJwtException | ExpiredJwtException e) {
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 response.getWriter().write("Invalid JWT: " + e.getMessage());
@@ -61,5 +52,19 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             }
         }
         chain.doFilter(request, response);
+    }
+
+    private void processClaimsAndSetAuthentication(Claims claims) {
+        String username = claims.getSubject();
+        String role = (String) claims.get("roles");
+        log.debug("Authenticated user's role: {}", role);
+
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        if (role != null) {
+            authorities.add(new SimpleGrantedAuthority(role));
+        }
+
+        var authentication = new UsernamePasswordAuthenticationToken(username, null, authorities);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }

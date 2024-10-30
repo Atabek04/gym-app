@@ -1,5 +1,6 @@
 package com.epam.gym.controller;
 
+import com.epam.gym.controller.openapi.TrainerApi;
 import com.epam.gym.dto.TrainerRequest;
 import com.epam.gym.dto.TrainerResponse;
 import com.epam.gym.dto.TrainerTrainingFilterRequest;
@@ -9,13 +10,11 @@ import com.epam.gym.dto.UserCredentials;
 import com.epam.gym.dto.UserStatusRequest;
 import com.epam.gym.service.TrainerService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -33,27 +32,25 @@ import java.util.List;
 @RequestMapping("v1/trainers")
 @RequiredArgsConstructor
 @Slf4j
-@Secured("ROLE_TRAINER")
-@Tag(name = "Trainer")
-public class TrainerController {
+public class TrainerController implements TrainerApi {
 
     private final TrainerService trainerService;
 
-    @Operation(summary = "Create a new trainer", description = "Adds a new trainer to the system.")
+    @Override
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     @PermitAll
+    @ResponseStatus(HttpStatus.CREATED)
     public UserCredentials createTrainer(@Valid @RequestBody TrainerRequest request) {
         return trainerService.create(request);
     }
 
-    @Operation(summary = "Get trainer by username", description = "Retrieves a trainer and their assigned trainees by username.")
+    @Override
     @GetMapping("/{username}")
     public TrainerResponse getTrainerByUsername(@PathVariable("username") String username) {
         return trainerService.getTrainerAndTrainees(username);
     }
 
-    @Operation(summary = "Update trainer information", description = "Updates the details of an existing trainer.")
+    @Override
     @PutMapping("/{username}")
     public TrainerResponse updateTrainer(
             @PathVariable("username") String username,
@@ -62,7 +59,7 @@ public class TrainerController {
         return trainerService.updateTrainerAndUser(request, username);
     }
 
-    @Operation(summary = "Delete a trainer", description = "Removes a trainer from the system.")
+    @Override
     @DeleteMapping("/{username}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTrainer(@PathVariable("username") String username) {

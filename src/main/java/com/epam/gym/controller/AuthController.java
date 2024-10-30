@@ -1,16 +1,13 @@
 package com.epam.gym.controller;
 
+import com.epam.gym.controller.openapi.AuthApi;
 import com.epam.gym.dto.UserCredentials;
 import com.epam.gym.dto.UserNewPasswordCredentials;
 import com.epam.gym.exception.AuthenticationException;
 import com.epam.gym.service.AuthService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,38 +20,36 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/v1/auth")
 @Slf4j
-@Tag(name = "Authentication")
-public class AuthController {
+public class AuthController implements AuthApi {
+
     private final AuthService authService;
 
+    @Override
     @PostMapping("/login")
-    @Operation(summary = "Login", description = "Authenticate a user and return JWT and Refresh Token.")
-    public Map<String, String> login(@Valid @RequestBody UserCredentials credentials) {
+    public Map<String, String> login(@RequestBody UserCredentials credentials) {
         return authService.login(credentials);
     }
 
+    @Override
     @PostMapping("/refresh-token")
-    @Operation(summary = "Refresh Token", description = "Generate a new access token using a refresh token.")
-    public Map<String, String> refreshToken(@ParameterObject @RequestBody Map<String, String> tokenRequest) {
+    public Map<String, String> refreshToken(@RequestBody Map<String, String> tokenRequest) {
         String refreshToken = tokenRequest.get("refreshToken");
         return authService.refreshToken(refreshToken);
     }
 
+    @Override
     @PutMapping("/password")
-    @Operation(summary = "Change Password", description = "Change the password of the authenticated user.")
-    public void changePassword(@Valid @RequestBody UserNewPasswordCredentials credentials) {
+    public void changePassword(@RequestBody UserNewPasswordCredentials credentials) {
         authService.changePassword(credentials);
     }
 
+    @Override
     @PostMapping("/logout")
-    @Operation(summary = "Logout", description = "Log out the authenticated user.")
-    public String logout() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            String username = authentication.getName();
-            authService.logout(username);
-            return "User successfully logged out and refresh token deleted.";
+    public String logout(@AuthenticationPrincipal String username) {
+        if (username == null) {
+            throw new AuthenticationException("User is not authenticated.");
         }
-        throw new AuthenticationException("User is not authenticated.");
+        authService.logout(username);
+        return "User successfully logged out and refresh token deleted.";
     }
 }
