@@ -28,6 +28,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtRequestFilter extends OncePerRequestFilter {
     private static final int BEARER_PREFIX_LENGTH = 7;
+    private final JwtUtil jwtUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -39,7 +40,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(BEARER_PREFIX_LENGTH);
             try {
-                var claims = JwtUtil.extractAllClaims(token);
+                var claims = jwtUtil.extractAllClaims(token);
                 processClaimsAndSetAuthentication(claims);
             } catch (MalformedJwtException | UnsupportedJwtException | ExpiredJwtException e) {
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());

@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-import static com.epam.gym.util.UserUtils.generateRandomPassword;
 import static com.epam.gym.util.UserUtils.generateUsername;
 
 @Service
@@ -35,7 +34,7 @@ public class UserServiceImpl implements UserService {
                     user.getLastName(),
                     userRepo.findAllUsernames());
             user.setUsername(username);
-            var encodedPassword = passwordEncoder.encode(generateRandomPassword());
+            var encodedPassword = passwordEncoder.encode(user.getPassword());
             user.setPassword(encodedPassword);
         } else {
             log.info("Updating existing user with ID: {}", user.getId());
@@ -53,16 +52,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> update(User user, Long id) {
-        var oldUser = userRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+    public Optional<User> update(User user, Long userId) {
+        var oldUser = userRepo.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
-        user.setUsername(oldUser.getUsername());
-        var encodedPassword = passwordEncoder.encode(oldUser.getPassword());
-        user.setPassword(encodedPassword);
-        user.setId(id);
+        oldUser.setFirstName(user.getFirstName());
+        oldUser.setLastName(user.getLastName());
+        oldUser.setActive(user.isActive());
 
-        return Optional.ofNullable(saveUser(user));
+        return Optional.of(userRepo.save(oldUser));
     }
 
     @Override
@@ -99,7 +97,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public void changePassword(String username, String newPassword) {
         log.info("Changing password for user with username: {}", username);
-        userRepo.changePassword(username, newPassword);
+        var encodedPassword = passwordEncoder.encode(newPassword);
+        userRepo.changePassword(username, encodedPassword);
         log.info("Password changed successfully for username: {}", username);
     }
 
@@ -126,15 +125,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public void validateAndChangePassword(UserNewPasswordCredentials credentials) {
         log.info("Password change requested for user: {}", credentials.username());
-        log.info("Validating old password and changing password for user with username: {}", credentials.username());
+
         var user = findByUsername(credentials.username())
-                .orElseThrow(() -> new ResourceNotFoundException("User with this username not found"));
-        if (user.getPassword().equals(credentials.oldPassword())) {
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + credentials.username()));
+
+        if (passwordEncoder.matches(credentials.oldPassword(), user.getPassword())) {
             changePassword(credentials.username(), credentials.newPassword());
+            log.info("Password changed successfully for user: {}", credentials.username());
         } else {
             log.error("Old password mismatch for user: {}", credentials.username());
-            throw new AuthenticationException("Failed to auth. Wrong old password");
+            throw new AuthenticationException("Authentication failed. Incorrect old password.");
         }
-        log.info("Password changed successfully for user: {}", credentials.username());
     }
 }

@@ -17,7 +17,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 
@@ -49,7 +49,7 @@ public class Training {
     private Integer trainingTypeId;
 
     @Column(name = "training_date", nullable = false)
-    private ZonedDateTime trainingDate;
+    private LocalDateTime trainingDate;
 
     @Column(name = "training_duration", nullable = false)
     private Long trainingDuration;

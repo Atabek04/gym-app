@@ -9,10 +9,12 @@ import com.epam.gym.dto.TraineeUpdateRequest;
 import com.epam.gym.dto.TrainingResponse;
 import com.epam.gym.dto.UserCredentials;
 import com.epam.gym.dto.UserStatusRequest;
+import com.epam.gym.model.TrainingType;
 import com.epam.gym.service.TraineeService;
 import jakarta.annotation.security.PermitAll;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,9 +25,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -53,8 +57,8 @@ public class TraineeController implements TraineeApi {
 
     @Override
     @PutMapping("/{username}")
-    public TraineeResponse updateTrainee(@PathVariable String username, @RequestBody TraineeUpdateRequest request) {
-        return traineeService.updateTraineeAndUser(request, username);
+    public TraineeResponse updateTrainee(@PathVariable("username") String traineeUsername, @RequestBody TraineeUpdateRequest request) {
+        return traineeService.updateTraineeAndUser(request, traineeUsername);
     }
 
     @Override
@@ -72,7 +76,21 @@ public class TraineeController implements TraineeApi {
 
     @Override
     @GetMapping("/{username}/trainings")
-    public List<TrainingResponse> getTraineeTrainings(@PathVariable String username, @RequestBody TraineeTrainingFilterRequest filterRequest) {
+    public List<TrainingResponse> getTraineeTrainings(
+            @PathVariable String username,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime periodFrom,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime periodTo,
+            @RequestParam(required = false) String trainerName,
+            @RequestParam(required = false) TrainingType trainingType) {
+
+        TraineeTrainingFilterRequest filterRequest = TraineeTrainingFilterRequest.builder()
+                .periodFrom(periodFrom)
+                .periodTo(periodTo)
+                .trainerName(trainerName)
+                .trainingType(trainingType)
+                .build();
         return traineeService.getTraineeTrainings(username, filterRequest);
     }
 

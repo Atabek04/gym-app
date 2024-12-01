@@ -9,11 +9,16 @@ spring:
     import: "file:./env.properties"
 
   profiles:
-    active: local
+    active: prod
 
 logging:
   level:
     root: WARN
+    sun.rmi.transport.tcp: WARN
+    sun.rmi.server: ERROR
+    sun.rmi.registry: ERROR
+    sun.rmi.loader: WARN
+    javax.management.remote.rmi: WARN
 
 management:
   endpoint:

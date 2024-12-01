@@ -20,7 +20,7 @@ public class DatabaseHealthIndicator implements HealthIndicator {
     @Override
     public Health health() {
         Map<String, Object> details = Map.of(
-                "user_table", getTableRowCount("user_table"),
+                "users_table", getTableRowCount("users_table"),
                 "trainee_table", getTableRowCount("trainee"),
                 "trainer_table", getTableRowCount("trainer"),
                 "training_table", getTableRowCount("training"),

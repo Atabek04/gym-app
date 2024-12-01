@@ -18,12 +18,13 @@ import com.epam.gym.repository.TrainerRepository;
 import com.epam.gym.repository.TrainingRepository;
 import com.epam.gym.service.TraineeService;
 import com.epam.gym.service.UserService;
+import com.epam.gym.util.UserUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +36,6 @@ import static com.epam.gym.mapper.TraineeMapper.toTraineeResponse;
 import static com.epam.gym.mapper.UserMapper.toUser;
 import static com.epam.gym.util.Constants.DUMMY_TRAINING_DURATION;
 import static com.epam.gym.util.Constants.DUMMY_TRAINING_NAME;
-import static com.epam.gym.util.UpdateEntityFields.updateTraineeFields;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +52,11 @@ public class TraineeServiceImpl implements TraineeService {
     @Override
     public UserCredentials create(TraineeRequest request) {
         log.info("Creating trainee");
-        var createdUser = userService.create(toUser(request))
+
+        var extractedUser = toUser(request);
+        var plainPassword = UserUtils.generateRandomPassword();
+        extractedUser.setPassword(plainPassword);
+        var createdUser = userService.create(extractedUser)
                 .orElseThrow(() -> new IllegalStateException("Failed to create user for trainee"));
 
         traineeRepository.save(toTrainee(request, createdUser));
@@ -60,7 +64,7 @@ public class TraineeServiceImpl implements TraineeService {
 
         return UserCredentials.builder()
                 .username(createdUser.getUsername())
-                .password(createdUser.getPassword())
+                .password(plainPassword)
                 .build();
     }
 
@@ -71,11 +75,12 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
-    public void update(Trainee updatedTrainee, Long id) {
+    public void update(Trainee newTrainee, Long id) {
         Trainee existingTrainee = traineeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Trainee not found with id: " + id));
 
-        updateTraineeFields(existingTrainee, updatedTrainee);
+        existingTrainee.setDateOfBirth(newTrainee.getDateOfBirth());
+        existingTrainee.setAddress(newTrainee.getAddress());
 
         traineeRepository.save(existingTrainee);
         log.info("Trainee with ID: {} updated successfully.", id);
@@ -84,7 +89,8 @@ public class TraineeServiceImpl implements TraineeService {
     @Override
     public TraineeResponse updateTraineeAndUser(TraineeUpdateRequest request, String username) {
         log.info("Updating trainee and user for username: {}", username);
-        var oldTrainee = findByUsername(username)
+
+        var oldTrainee = traineeRepository.findByUserUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Trainee with this username not found"));
 
         var updatedUser = userService.update(toUser(request), oldTrainee.getUser().getId())
@@ -140,13 +146,14 @@ public class TraineeServiceImpl implements TraineeService {
     @Transactional
     public void updateTrainers(String username, List<String> trainerUsernames) {
         log.info("Updating trainers for trainee: {}", username);
-        Trainee trainee = getTraineeByUsername(username);
-        Set<String> currentTrainerUsernames = getCurrentTrainerUsernames(username);
 
         if (trainerUsernames.isEmpty()) {
             removeAllTrainers(username);
             return;
         }
+
+        Trainee trainee = getTraineeByUsername(username);
+        Set<String> currentTrainerUsernames = getCurrentTrainerUsernames(username);
 
         addNewTrainers(trainerUsernames, currentTrainerUsernames, trainee);
         removeTrainersNotInList(trainerUsernames, username);
@@ -195,7 +202,7 @@ public class TraineeServiceImpl implements TraineeService {
         training.setTrainee(trainee);
         training.setTrainer(trainer);
         training.setTrainingName(DUMMY_TRAINING_NAME);
-        training.setTrainingDate(ZonedDateTime.now());
+        training.setTrainingDate(LocalDateTime.now());
         training.setTrainingTypeId(trainer.getTrainingTypeId());
         training.setTrainingDuration(DUMMY_TRAINING_DURATION);
 
@@ -243,12 +250,46 @@ public class TraineeServiceImpl implements TraineeService {
     @Override
     public List<TrainingResponse> getTraineeTrainings(String username, TraineeTrainingFilterRequest filterRequest) {
         log.info("Fetching trainings for trainee: {} with filters: {}", username, filterRequest);
+
         Trainee trainee = getTraineeByUsername(username);
-        List<Training> trainings = trainingRepository.findTrainingsByFilters(trainee.getId(),
-                filterRequest.getPeriodFrom(), filterRequest.getPeriodTo(), filterRequest.getTrainerName(), filterRequest.getTrainingType().getId());
+        List<Training> trainings;
+
+        if (filterRequest.getPeriodFrom() == null && filterRequest.getPeriodTo() == null
+                && filterRequest.getTrainerName() == null && filterRequest.getTrainingType() == null) {
+            trainings = getTraineeTrainingsByTraineeID(trainee.getId());
+        } else if (filterRequest.getTrainerName() == null && filterRequest.getTrainingType() == null) {
+            trainings = getTraineeTrainingsByTraineeIdAndTrainingDateBetween(trainee.getId(), filterRequest);
+        } else {
+            trainings = getTraineeTrainingByAllCriteria(trainee.getId(), filterRequest);
+        }
         log.info("Successfully fetched trainings for trainee: {}", username);
         return trainings.stream().map(TrainingMapper::toTrainingResponse).toList();
     }
+
+    private List<Training> getTraineeTrainingsByTraineeID(Long traineeId) {
+        return trainingRepository.findByTraineeId(traineeId);
+    }
+
+    private List<Training> getTraineeTrainingsByTraineeIdAndTrainingDateBetween(Long traineeId, TraineeTrainingFilterRequest filterRequest) {
+        LocalDateTime periodFrom = filterRequest.getPeriodFrom();
+        LocalDateTime periodTo = filterRequest.getPeriodTo();
+        return trainingRepository.findByTraineeIdAndTrainingDateBetween(
+                traineeId, periodFrom, periodTo);
+    }
+
+    private List<Training> getTraineeTrainingByAllCriteria(Long traineeId, TraineeTrainingFilterRequest filterRequest) {
+        LocalDateTime periodFrom = filterRequest.getPeriodFrom();
+        LocalDateTime periodTo = filterRequest.getPeriodTo();
+        Integer trainingTypeId = filterRequest.getTrainingType().getId();
+        return trainingRepository.findByAllFilters(
+                traineeId,
+                periodFrom,
+                periodTo,
+                filterRequest.getTrainerName(),
+                trainingTypeId
+        );
+    }
+
 
     private Trainee getTraineeByUsername(String username) {
         return traineeRepository.findByUserUsername(username)

@@ -42,6 +42,11 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOrigins(allowedOrigins)
                 .allowedMethods(allowedMethods)
                 .allowCredentials(true);
+
+        registry.addMapping("/v3/api-docs/**")
+                .allowedOrigins(allowedOrigins)
+                .allowedMethods(allowedMethods)
+                .allowCredentials(true);
     }
 
     @Bean

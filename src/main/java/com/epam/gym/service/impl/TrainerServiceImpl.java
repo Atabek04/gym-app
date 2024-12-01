@@ -9,9 +9,12 @@ import com.epam.gym.dto.UserCredentials;
 import com.epam.gym.exception.ResourceNotFoundException;
 import com.epam.gym.mapper.TrainingMapper;
 import com.epam.gym.model.Trainer;
+import com.epam.gym.model.Training;
 import com.epam.gym.repository.TrainerRepository;
+import com.epam.gym.repository.TrainingRepository;
 import com.epam.gym.service.TrainerService;
 import com.epam.gym.service.UserService;
+import com.epam.gym.util.UserUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,6 +36,7 @@ public class TrainerServiceImpl implements TrainerService {
 
     private final TrainerRepository trainerRepository;
     private final UserService userService;
+    private final TrainingRepository trainingRepository;
 
     @Override
     public Trainer create(Trainer trainer) {
@@ -43,16 +47,19 @@ public class TrainerServiceImpl implements TrainerService {
     @Override
     public UserCredentials create(TrainerRequest request) {
         log.info("Creating trainer for request: {} {}", request.firstName(), request.lastName());
-
-        var user = userService.create(toUser(request))
-                .orElseThrow(() -> new ResourceNotFoundException("Failed to create user for trainer request: " + request.firstName() + " " + request.lastName()));
+        var extractedUser = toUser(request);
+        var plainPassword = UserUtils.generateRandomPassword();
+        extractedUser.setPassword(plainPassword);
+        var user = userService.create(extractedUser)
+                .orElseThrow(() -> new ResourceNotFoundException("Failed to create user for trainer request: " +
+                        request.firstName() + " " + request.lastName()));
 
         trainerRepository.save(toTrainer(request, user));
         log.info("Trainer created successfully for username: {}", user.getUsername());
 
         return UserCredentials.builder()
                 .username(user.getUsername())
-                .password(user.getPassword())
+                .password(plainPassword)
                 .build();
     }
 
@@ -114,8 +121,17 @@ public class TrainerServiceImpl implements TrainerService {
     @Override
     public List<TrainingResponse> findTrainerTrainings(String username, TrainerTrainingFilterRequest filterRequest) {
         log.info("Fetching trainings for trainer: {} using filters: {}", username, filterRequest);
-        var trainings = trainerRepository.findTrainerTrainingsByFilters(username, filterRequest.getPeriodFrom(),
-                filterRequest.getPeriodTo(), filterRequest.getTraineeName());
+
+        List<Training> trainings;
+        if (filterRequest.getPeriodFrom() == null || filterRequest.getPeriodTo() == null) {
+            trainings = trainingRepository.findTrainingsByTrainerUsername(username);
+        } else {
+            trainings = trainingRepository.findTrainingsByTrainerUsernameAndPeriod(
+                    username,
+                    filterRequest.getPeriodFrom(),
+                    filterRequest.getPeriodTo());
+        }
+
         log.info("Successfully fetched trainings for trainer: {}", username);
         return trainings.stream()
                 .map(TrainingMapper::toTrainingResponse)

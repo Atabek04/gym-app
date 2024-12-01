@@ -25,7 +25,7 @@ public class TrainerMapper {
     public static Trainer toTrainer(TrainerUpdateRequest trainerRequest, User user) {
         return Trainer.builder()
                 .user(user)
-                .trainingTypeId(TrainingType.valueOf(trainerRequest.specialization()).getId())
+                .trainingTypeId(TrainingType.valueOf(trainerRequest.specialization().toUpperCase()).getId())
                 .build();
     }
 

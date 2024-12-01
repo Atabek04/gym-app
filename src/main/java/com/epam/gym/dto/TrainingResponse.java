@@ -1,9 +1,10 @@
 package com.epam.gym.dto;
 
 import com.epam.gym.model.TrainingType;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 
 @Builder
 public record TrainingResponse(
@@ -16,7 +17,8 @@ public record TrainingResponse(
         String trainerLastName,
         String trainingName,
         TrainingType trainingType,
-        ZonedDateTime trainingDate,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+        LocalDateTime trainingDate,
         Long trainingDuration
 ) {
 }

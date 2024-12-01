@@ -9,11 +9,11 @@ import com.epam.gym.dto.TrainingResponse;
 import com.epam.gym.dto.UserCredentials;
 import com.epam.gym.dto.UserStatusRequest;
 import com.epam.gym.service.TrainerService;
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,9 +23,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -36,7 +38,6 @@ public class TrainerController implements TrainerApi {
 
     private final TrainerService trainerService;
 
-    @Override
     @PostMapping
     @PermitAll
     @ResponseStatus(HttpStatus.CREATED)
@@ -44,13 +45,11 @@ public class TrainerController implements TrainerApi {
         return trainerService.create(request);
     }
 
-    @Override
     @GetMapping("/{username}")
     public TrainerResponse getTrainerByUsername(@PathVariable("username") String username) {
         return trainerService.getTrainerAndTrainees(username);
     }
 
-    @Override
     @PutMapping("/{username}")
     public TrainerResponse updateTrainer(
             @PathVariable("username") String username,
@@ -59,23 +58,24 @@ public class TrainerController implements TrainerApi {
         return trainerService.updateTrainerAndUser(request, username);
     }
 
-    @Override
     @DeleteMapping("/{username}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTrainer(@PathVariable("username") String username) {
         trainerService.delete(username);
     }
 
-    @Operation(summary = "Get trainings for a trainer", description = "Retrieves all training sessions assigned to a specific trainer.")
     @GetMapping("/{username}/trainings")
     public List<TrainingResponse> getTrainerTrainings(
-            @PathVariable("username") String username,
-            @Valid @RequestBody TrainerTrainingFilterRequest filterRequest
-    ) {
+            @PathVariable(required = false) String username,
+            @Valid @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime periodFrom,
+            @Valid @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime periodTo) {
+        var filterRequest = TrainerTrainingFilterRequest.builder()
+                .periodFrom(periodFrom)
+                .periodTo(periodTo)
+                .build();
         return trainerService.findTrainerTrainings(username, filterRequest);
     }
 
-    @Operation(summary = "Update trainer status", description = "Updates the active status of the specified trainer.")
     @PatchMapping("/{username}/status")
     public void updateTrainerStatus(
             @PathVariable("username") String username,

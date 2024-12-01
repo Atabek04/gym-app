@@ -3,6 +3,7 @@ package com.epam.gym.controller.openapi;
 import com.epam.gym.dto.UserCredentials;
 import com.epam.gym.dto.UserNewPasswordCredentials;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,5 +23,5 @@ public interface AuthApi {
     void changePassword(@RequestBody UserNewPasswordCredentials credentials);
 
     @Operation(summary = "Logout", description = "Log out the authenticated user.")
-    String logout(String username);
+    String logout(@Parameter(example = "Super.Man") String username);
 }

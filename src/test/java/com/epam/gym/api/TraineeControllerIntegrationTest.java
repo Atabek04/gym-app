@@ -34,7 +34,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -79,8 +79,8 @@ class TraineeControllerIntegrationTest {
                 .roles("TRAINEE")
                 .build();
 
-        when(JwtUtil.generateToken(userDetails, UserRole.ROLE_TRAINEE)).thenReturn("mocked-jwt-token");
-        jwtToken = "Bearer " + JwtUtil.generateToken(userDetails, UserRole.ROLE_TRAINEE);
+        when(jwtUtil.generateToken(userDetails, UserRole.ROLE_TRAINEE)).thenReturn("mocked-jwt-token");
+        jwtToken = "Bearer " + jwtUtil.generateToken(userDetails, UserRole.ROLE_TRAINEE);
 
         mockMvc = MockMvcBuilders.standaloneSetup(traineeController)
                 .setControllerAdvice(new GlobalExceptionHandler())
@@ -278,7 +278,7 @@ class TraineeControllerIntegrationTest {
         List<TrainingResponse> mockTrainings = List.of(
                 new TrainingResponse(45L, 61L, 48L, "Halid", "Ismail",
                         "NonSuper", "Trainer", "Dummy Training Name",
-                        TrainingType.valueOf("CARDIO"), ZonedDateTime.now(), 60L)
+                        TrainingType.valueOf("CARDIO"), LocalDateTime.now(), 60L)
         );
 
         when(traineeService.getTraineeTrainings(eq("Halid.Ismail"), any())).thenReturn(mockTrainings);
@@ -332,7 +332,7 @@ class TraineeControllerIntegrationTest {
                 .roles("TRAINEE")
                 .build();
 
-        jwtToken = JwtUtil.generateToken(userDetails, UserRole.ROLE_TRAINEE);
+        jwtToken = jwtUtil.generateToken(userDetails, UserRole.ROLE_TRAINEE);
 
         return "Bearer " + jwtToken;
     }

@@ -5,7 +5,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,7 +17,6 @@ import java.util.Map;
 
 @Component
 @Slf4j
-@UtilityClass
 public class JwtUtil {
     @Value("${security.jwt.secret-key}")
     private String secret;
@@ -29,7 +27,7 @@ public class JwtUtil {
     @Value("${security.jwt.expiration-ms}")
     private long expirationTime;
 
-    public static Claims extractAllClaims(String token) {
+    public Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getSecretKey(secret)).build()
                 .parseSignedClaims(token)
@@ -42,7 +40,7 @@ public class JwtUtil {
     }
 
 
-    public static String generateToken(UserDetails userDetails, UserRole role) {
+    public String generateToken(UserDetails userDetails, UserRole role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("roles", role.name());
         return createToken(claims, userDetails.getUsername());

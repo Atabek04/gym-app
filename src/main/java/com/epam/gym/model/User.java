@@ -52,8 +52,8 @@ public class User {
     @Column(name = "failed_login_count", columnDefinition = "integer default 0")
     private int failedLoginAttempts;
 
-    @Column(name = "is_account_locked", columnDefinition = "boolean default true")
-    private boolean isAccountNonLocked;
+    @Column(name = "is_account_non_locked", columnDefinition = "boolean default true")
+    private boolean isAccountNonLocked = true;
 
     @Column(name = "lockout_time")
     private LocalDateTime lockoutTime;

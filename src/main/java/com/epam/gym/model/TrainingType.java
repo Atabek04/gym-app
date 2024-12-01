@@ -3,6 +3,8 @@ package com.epam.gym.model;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Objects;
+
 @RequiredArgsConstructor
 @Getter
 public enum TrainingType {
@@ -20,23 +22,15 @@ public enum TrainingType {
     MOBILITY_TRAINING(12),
     CROSSFIT(13);
 
-    private final int id;
+    private final Integer id;
 
     public static TrainingType fromId(Integer id) {
         for (TrainingType type : TrainingType.values()) {
-            if (type.getId() == id) {
+            if (Objects.equals(type.getId(), id)) {
                 return type;
             }
         }
         throw new IllegalArgumentException("Invalid TrainingType ID: " + id);
     }
 
-    public static boolean isValid(String value) {
-        for (TrainingType type : TrainingType.values()) {
-            if (type.name().equalsIgnoreCase(value)) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

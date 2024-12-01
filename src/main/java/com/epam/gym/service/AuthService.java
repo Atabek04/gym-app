@@ -1,13 +1,14 @@
 package com.epam.gym.service;
 
+import com.epam.gym.config.security.jwt.JwtUtil;
+import com.epam.gym.config.security.jwt.RefreshTokenService;
 import com.epam.gym.dto.UserCredentials;
 import com.epam.gym.dto.UserNewPasswordCredentials;
 import com.epam.gym.exception.AuthenticationException;
 import com.epam.gym.exception.ResourceNotFoundException;
-import com.epam.gym.config.security.jwt.JwtUtil;
-import com.epam.gym.config.security.jwt.RefreshTokenService;
 import com.epam.gym.model.User;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,12 +22,14 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final UserService userService;
     private final UserDetailsService userDetailsService;
     private final RefreshTokenService refreshTokenService;
     private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
 
     public Map<String, String> login(UserCredentials credentials) {
         var user = userService.findByUsername(credentials.username())
@@ -75,7 +78,7 @@ public class AuthService {
 
     private Map<String, String> generateTokens(User user) {
         var userDetails = userDetailsService.loadUserByUsername(user.getUsername());
-        var jwt = JwtUtil.generateToken(userDetails, user.getRole());
+        var jwt = jwtUtil.generateToken(userDetails, user.getRole());
         var refreshToken = refreshTokenService.createRefreshToken(userDetails.getUsername());
 
         Map<String, String> responseBody = new HashMap<>();
@@ -89,7 +92,7 @@ public class AuthService {
         var userDetails = userDetailsService.loadUserByUsername(token.getUser().getUsername());
         var role = userService.findByUsername(token.getUser().getUsername())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found")).getRole();
-        var newAccessToken = JwtUtil.generateToken(userDetails, role);
+        var newAccessToken = jwtUtil.generateToken(userDetails, role);
         return Map.of("accessToken", newAccessToken);
     }
 

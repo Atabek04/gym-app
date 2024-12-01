@@ -33,7 +33,7 @@ public class UserMapper {
                 .firstName(request.firstName())
                 .lastName(request.lastName())
                 .isActive(request.isActive())
-                .role(UserRole.ROLE_TRAINER)
+                .role(UserRole.ROLE_TRAINEE)
                 .build();
     }
 

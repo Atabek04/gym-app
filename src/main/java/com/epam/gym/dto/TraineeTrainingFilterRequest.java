@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -18,10 +18,10 @@ import java.time.LocalDate;
 public class TraineeTrainingFilterRequest {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate periodFrom;
+    private LocalDateTime periodFrom;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate periodTo;
+    private LocalDateTime periodTo;
 
     private String trainerName;
 

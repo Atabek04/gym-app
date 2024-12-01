@@ -7,8 +7,6 @@ import com.epam.gym.model.Trainer;
 import com.epam.gym.model.Training;
 import lombok.experimental.UtilityClass;
 
-import java.time.ZonedDateTime;
-
 @UtilityClass
 public class TrainingMapper {
     public static Training toTraining(TrainingRequest trainingRequest, Trainee trainee, Trainer trainer) {
@@ -17,7 +15,7 @@ public class TrainingMapper {
                 .trainer(trainer)
                 .trainingName(trainingRequest.trainingName())
                 .trainingTypeId(trainer.getTrainingTypeId())
-                .trainingDate(ZonedDateTime.from(trainingRequest.trainingDate()))
+                .trainingDate(trainingRequest.trainingDate())
                 .trainingDuration(trainingRequest.trainingDuration())
                 .build();
     }

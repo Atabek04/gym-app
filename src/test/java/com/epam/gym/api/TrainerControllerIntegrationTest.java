@@ -32,7 +32,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.nio.charset.StandardCharsets;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -206,7 +206,7 @@ class TrainerControllerIntegrationTest {
         List<TrainingResponse> mockTrainings = List.of(
                 new TrainingResponse(45L, 61L, 48L, "Halid", "Ismail",
                         "NonSuper", "Trainer", "Dummy Training Name",
-                        TrainingType.valueOf("CARDIO"), ZonedDateTime.now(), 60L)
+                        TrainingType.valueOf("CARDIO"), LocalDateTime.now(), 60L)
         );
 
         when(trainerService.findTrainerTrainings(eq("Super.Trainer"), any())).thenReturn(mockTrainings);
