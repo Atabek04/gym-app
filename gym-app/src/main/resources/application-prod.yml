@@ -1,0 +1,32 @@
+spring:
+  datasource:
+    url: ${DB_POSTGRES_URL}
+    username: ${DB_POSTGRES_USERNAME}
+    password: ${DB_POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        default_schema: public
+
+  flyway:
+    schemas: public
+    enabled: false
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    clean-disabled: true
+    default-schema: public
+    baseline-version: 11
+
+logging:
+  level:
+    root: WARN
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: 'health'

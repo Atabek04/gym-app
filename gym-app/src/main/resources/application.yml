@@ -1,0 +1,44 @@
+server:
+  port: 8090
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+  config:
+    import: "file:./env.properties"
+
+  profiles:
+    active: prod
+
+logging:
+  level:
+    root: WARN
+    sun.rmi.transport.tcp: WARN
+    sun.rmi.server: ERROR
+    sun.rmi.registry: ERROR
+    sun.rmi.loader: WARN
+    javax.management.remote.rmi: WARN
+
+management:
+  endpoint:
+    health:
+      show-details: always
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+
+security:
+  jwt:
+    # noinspection SpringBootApplicationYaml
+    secret-key: ${JWT_SECRET_KEY}
+    issuer: GymApp
+    expiration-ms: 3600000  # 1 hour
+    refresh-token-expiration-ms: 604800000  # 7 days
+
+cors:
+  allowed:
+    origins: "http://localhost:8090"
+    methods: "GET,POST,PUT,DELETE,OPTIONS"
