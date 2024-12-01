@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   spring-boot-app:
-    build: .
+    build: gym-app
     container_name: spring-boot-app
     ports:
       - "8091:8090"  # Expose internal port 8090 on Docker's port 8091
