@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: training-report
+
+  config:
+    import: "file:./env.properties"
+
+  datasource:
+    url: ${DB_H2_TRAINING_URL}
+    driver-class-name: org.h2.Driver
+    username: ${DB_H2_TRAINING_USERNAME}
+    password: ${DB_H2_TRAINING_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: true
+      settings:
+        web-allow-others: true
+
+server:
+  port: ${TRAINING_REPORT_PORT:0}
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    registerWithEureka: true
+    fetchRegistry: true
+  instance:
+    metadata-map:
+      serverPort: ${server.port}
+    preferIpAddress: true
+    instanceId: ${spring.cloud.client.hostname}:${spring.application.instance_id:${random.value}}
+
+management:
+  endpoints:
+    web.exposure:
+      include: info,health # And any other endpoints you wish to expose

@@ -6,7 +6,7 @@ spring:
     hibernate:
       ddl-auto: none
   config:
-    import: "file:./env.properties"
+    import: "file:../env.properties"
 
   profiles:
     active: prod
