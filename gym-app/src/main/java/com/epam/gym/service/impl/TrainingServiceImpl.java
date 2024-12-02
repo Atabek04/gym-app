@@ -3,6 +3,7 @@ package com.epam.gym.service.impl;
 import com.epam.gym.dto.TrainingRequest;
 import com.epam.gym.dto.TrainingTypeResponse;
 import com.epam.gym.exception.ResourceNotFoundException;
+import com.epam.gym.feign.TrainingReportNotifier;
 import com.epam.gym.mapper.TrainingMapper;
 import com.epam.gym.model.Training;
 import com.epam.gym.model.TrainingType;
@@ -30,6 +31,7 @@ public class TrainingServiceImpl implements TrainingService {
     private final TrainingRepository trainingRepository;
     private final TrainerRepository trainerRepository;
     private final TraineeRepository traineeRepository;
+    private final TrainingReportNotifier trainingReportNotifier;
 
     @Override
     public void create(Training training) {
@@ -90,8 +92,10 @@ public class TrainingServiceImpl implements TrainingService {
                 .orElseThrow(() -> new ResourceNotFoundException("Trainer not found"));
         var trainee = traineeRepository.findByUserUsername(request.traineeUsername())
                 .orElseThrow(() -> new ResourceNotFoundException("Trainee not found"));
-        trainingRepository.save(TrainingMapper.toTraining(request, trainee, trainer));
+        var training = trainingRepository.save(TrainingMapper.toTraining(request, trainee, trainer));
         log.info("Training created successfully for trainee: {} and trainer: {}", request.traineeUsername(), request.trainerUsername());
+
+        trainingReportNotifier.addTrainerWorkload(training);
     }
 
     @Override

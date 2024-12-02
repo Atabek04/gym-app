@@ -33,7 +33,7 @@ eureka:
     metadata-map:
       serverPort: ${server.port}
     preferIpAddress: true
-    instanceId: ${spring.cloud.client.hostname}:${spring.application.instance_id:${random.value}}
+#    instanceId: ${spring.application.name}:${spring.application.instance_id:${server.port}}
 
 management:
   endpoints:

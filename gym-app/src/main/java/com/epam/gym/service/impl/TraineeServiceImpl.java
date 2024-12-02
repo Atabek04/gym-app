@@ -8,6 +8,7 @@ import com.epam.gym.dto.TraineeUpdateRequest;
 import com.epam.gym.dto.TrainingResponse;
 import com.epam.gym.dto.UserCredentials;
 import com.epam.gym.exception.ResourceNotFoundException;
+import com.epam.gym.feign.TrainingReportNotifier;
 import com.epam.gym.mapper.TrainerMapper;
 import com.epam.gym.mapper.TrainingMapper;
 import com.epam.gym.model.Trainee;
@@ -18,6 +19,7 @@ import com.epam.gym.repository.TrainerRepository;
 import com.epam.gym.repository.TrainingRepository;
 import com.epam.gym.service.TraineeService;
 import com.epam.gym.service.UserService;
+import com.epam.gym.util.UserType;
 import com.epam.gym.util.UserUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +49,7 @@ public class TraineeServiceImpl implements TraineeService {
     private final UserService userService;
     private final TrainerRepository trainerRepository;
     private final TrainingRepository trainingRepository;
+    private final TrainingReportNotifier trainingReportNotifier;
 
     @Transactional
     @Override
@@ -308,5 +311,7 @@ public class TraineeServiceImpl implements TraineeService {
         log.info("Deleting trainee by username: {}", username);
         traineeRepository.deleteByUserUsername(username);
         log.info("Trainee with username: {} deleted successfully.", username);
+
+        trainingReportNotifier.removeTrainerWorkload(username, UserType.TRAINEE);
     }
 }
