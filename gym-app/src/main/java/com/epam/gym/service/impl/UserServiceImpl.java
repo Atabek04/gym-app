@@ -1,6 +1,5 @@
 package com.epam.gym.service.impl;
 
-import com.epam.gym.dto.UserNewPasswordCredentials;
 import com.epam.gym.exception.AuthenticationException;
 import com.epam.gym.exception.ResourceNotFoundException;
 import com.epam.gym.model.User;
@@ -120,21 +119,5 @@ public class UserServiceImpl implements UserService {
     public Optional<User> findByUsername(String username) {
         log.info("Fetching user by username: {}", username);
         return userRepo.findByUsername(username);
-    }
-
-    @Override
-    public void validateAndChangePassword(UserNewPasswordCredentials credentials) {
-        log.info("Password change requested for user: {}", credentials.username());
-
-        var user = findByUsername(credentials.username())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + credentials.username()));
-
-        if (passwordEncoder.matches(credentials.oldPassword(), user.getPassword())) {
-            changePassword(credentials.username(), credentials.newPassword());
-            log.info("Password changed successfully for user: {}", credentials.username());
-        } else {
-            log.error("Old password mismatch for user: {}", credentials.username());
-            throw new AuthenticationException("Authentication failed. Incorrect old password.");
-        }
     }
 }

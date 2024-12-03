@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/trainings")
+@RequestMapping("/api/v1/workload")
 public class TrainerWorkloadController implements TrainerWorkloadApi {
 
     private final TrainerWorkloadService service;

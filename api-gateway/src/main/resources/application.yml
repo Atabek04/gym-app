@@ -1,0 +1,64 @@
+server:
+  port: 8095
+
+spring:
+  application:
+    name: api-gateway
+
+  config:
+    import: "file:./env.properties"
+
+  r2dbc:
+    url: ${DB_POSTGRES_REACTIVE_URL}
+    username: ${DB_POSTGRES_USERNAME}
+    password: ${DB_POSTGRES_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+  main:
+    allow-bean-definition-overriding: true
+    web-application-type: reactive
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: gym-app
+          uri: lb://GYM-APP
+          predicates:
+            - Path=/api/v1/trainees/**
+            - Path=/api/v1/trainers/**
+            - Path=/api/v1/trainings/**
+
+        - id: training-report
+          uri: lb://TRAINING-REPORT
+          predicates:
+            - Path=/api/v1/workload/**
+
+        - id: auth-endpoints
+          uri: http://localhost:8095
+          predicates:
+            - Path=/v1/auth/**
+
+
+security:
+  jwt:
+    # noinspection SpringBootApplicationYaml
+    secret-key: ${JWT_SECRET_KEY}
+    issuer: GymApp
+    expiration-ms: 3600000  # 1 hour
+    refresh-token-expiration-ms: 604800000  # 7 days
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+cors:
+  allowed:
+    origins: "http://localhost:8090"
+    methods: "GET,POST,PUT,DELETE,OPTIONS"

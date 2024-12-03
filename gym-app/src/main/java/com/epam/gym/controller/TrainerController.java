@@ -31,7 +31,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("v1/trainers")
+@RequestMapping("api/v1/trainers")
 @RequiredArgsConstructor
 @Slf4j
 public class TrainerController implements TrainerApi {

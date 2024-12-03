@@ -19,7 +19,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("v1/trainings")
+@RequestMapping("api/v1/trainings")
 @Slf4j
 public class TrainingController implements TrainingApi {
 
