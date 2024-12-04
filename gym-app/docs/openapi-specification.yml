@@ -543,7 +543,7 @@ components:
                 type: string
               trainingType:
                 type: string
-                enum: [STRENGTH, CARDIO, FLEXIBILITY, BALANCE]
+                enum: [ STRENGTH, CARDIO, FLEXIBILITY, BALANCE ]
 
     TrainerCreateRequest:
       type: object
@@ -635,7 +635,7 @@ components:
           example: Cardio Training
         trainingType:
           type: string
-          enum: [STRENGTH, CARDIO, FLEXIBILITY, BALANCE]
+          enum: [ STRENGTH, CARDIO, FLEXIBILITY, BALANCE ]
         trainingDate:
           type: string
           format: date-time

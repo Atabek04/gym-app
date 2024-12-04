@@ -5,10 +5,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 
-@SpringBootApplication(scanBasePackages = "com.epam.gym.apigateway")
+@SpringBootApplication
 @ComponentScan(
         basePackages = "com.epam.gym.apigateway",
-        excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = "com.epam.gym.*")
+        excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = "com.epam.gym.main.*")
 )
 public class ApiGatewayApplication {
 

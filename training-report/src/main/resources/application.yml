@@ -16,7 +16,7 @@ spring:
     password: ${DB_H2_TRAINING_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     database-platform: org.hibernate.dialect.H2Dialect
   h2:
     console:
@@ -32,7 +32,7 @@ eureka:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
   instance:
-    preferIpAddress: true
+    preferIpAddress: false
     hostname: localhost
 
 management:
