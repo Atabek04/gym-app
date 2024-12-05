@@ -25,6 +25,14 @@ spring:
     allow-bean-definition-overriding: true
     web-application-type: reactive
 
+  zipkin:
+    enabled: true
+    base-url: http://localhost:9411 # Default Zipkin URL
+    sender:
+      type: web
+    sampling:
+      probability: 1.0 # Sample 100% of the requests
+
   cloud:
     gateway:
       discovery:
@@ -90,3 +98,15 @@ security:
     issuer: GymApp
     expiration-ms: 3600000  # 1 hour
     refresh-token-expiration-ms: 604800000  # 7 days
+
+
+management:
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0 # Adjust sampling rate (1.0 = 100% of requests)
+
+  endpoints:
+    web:
+      exposure:
+        include: "*"

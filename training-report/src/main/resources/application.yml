@@ -39,3 +39,7 @@ management:
   endpoints:
     web.exposure:
       include: info,health # And any other endpoints you wish to expose
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
