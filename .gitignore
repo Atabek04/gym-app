@@ -14,7 +14,7 @@ target/
 *.ipr
 
 .smarttomcat
-env.properties
+./env.properties
 
 ### Eclipse ###
 .apt_generated
@@ -46,3 +46,4 @@ build/
 /.idea/vcs.xml
 /logs/
 /data/
+/env.properties
