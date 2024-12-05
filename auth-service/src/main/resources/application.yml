@@ -6,7 +6,7 @@ spring:
     name: auth-service
 
   config:
-    import: "file:./env.properties"
+    import: "optional:file:./env.properties"
 
   datasource:
     username: ${DB_USER_AUTH_USERNAME}

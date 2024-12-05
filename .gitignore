@@ -14,7 +14,7 @@ target/
 *.ipr
 
 .smarttomcat
-env.properties
+./env.properties
 
 ### Eclipse ###
 .apt_generated

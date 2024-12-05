@@ -53,13 +53,15 @@ public class TraineeController implements TraineeApi {
 
     @Override
     @PutMapping("/{username}")
-    public TraineeResponse updateTrainee(@PathVariable("username") String traineeUsername, @RequestBody TraineeUpdateRequest request) {
+    public TraineeResponse updateTrainee(@PathVariable("username") String traineeUsername,
+                                         @RequestBody TraineeUpdateRequest request) {
         return traineeService.updateTraineeAndUser(request, traineeUsername);
     }
 
     @Override
     @PutMapping("/{username}/trainers")
-    public TraineeResponse updateTrainers(@PathVariable String username, @RequestBody List<String> trainerUsernames) {
+    public TraineeResponse updateTrainers(@PathVariable String username,
+                                          @RequestBody List<String> trainerUsernames) {
         traineeService.updateTrainers(username, trainerUsernames);
         return traineeService.getTraineeAndTrainers(username);
     }

@@ -1,4 +1,4 @@
-package com.epam.gym;
+package com.epam.gym.main;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

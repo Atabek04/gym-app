@@ -6,7 +6,6 @@ import com.epam.gym.authservice.dto.UserNewPasswordCredentials;
 import com.epam.gym.authservice.exception.AuthenticationException;
 import com.epam.gym.authservice.service.AuthService;
 import com.epam.gym.authservice.service.SecurityUserService;
-import jakarta.annotation.security.PermitAll;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -31,7 +30,6 @@ public class AuthController implements AuthApi {
     private final AuthService authService;
 
     @PostMapping("/users")
-    @PermitAll
     public void createUser(@RequestBody AuthUserDTO createAuthUserDTO) {
         log.info("Received request to create SecurityUser with username: {}", createAuthUserDTO.username());
         securityUserService.createUser(createAuthUserDTO);

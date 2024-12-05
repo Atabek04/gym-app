@@ -3,7 +3,7 @@ spring:
     name: training-report
 
   config:
-    import: "file:./env.properties"
+    import: "optional:file:./env.properties"
 
   devtools:
     restart:
