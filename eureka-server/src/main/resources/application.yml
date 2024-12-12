@@ -1,0 +1,20 @@
+server:
+  port: 8761
+
+spring:
+  application:
+    name: eureka-server
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false # Since this is the server itself, it won't register with any other Eureka instance
+
+logging:
+  level:
+    root: WARN
+    sun.rmi.transport.tcp: WARN
+    sun.rmi.server: ERROR
+    sun.rmi.registry: ERROR
+    sun.rmi.loader: WARN
+    javax.management.remote.rmi: WARN

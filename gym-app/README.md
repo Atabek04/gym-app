@@ -66,12 +66,12 @@ After running the application, use the CLI to interact with the Gym CRM system:
     - **Delete**: Remove a trainee from the system.
     - **Select**: View the details of trainees.
 - Trainer Management:
-  - **Create**: Enter the details of a new trainer.
-  - **Update**: Modify the details of an existing trainer.
-  - **Select**: View the details of trainers.
+    - **Create**: Enter the details of a new trainer.
+    - **Update**: Modify the details of an existing trainer.
+    - **Select**: View the details of trainers.
 - Training Management:
-  - **Create**: Schedule a new training session.
-  - **Select**: View the details of training sessions.
+    - **Create**: Schedule a new training session.
+    - **Select**: View the details of training sessions.
 
 ## Design and Implementation
 
@@ -97,7 +97,6 @@ The project includes unit tests that adhere to the F.I.R.S.T. principles:
 - **Repeatable**: Tests should produce the same result every time.
 - **Self-Validating**: Tests should have a boolean output.
 - **Timely**: Tests should be written before the code.
-
 
 To run the tests, use:
 
