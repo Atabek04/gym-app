@@ -24,6 +24,13 @@ spring:
       settings:
         web-allow-others: true
 
+  activemq:
+    broker-url: tcp://localhost:61616 # External ActiveMQ broker
+    user: admin                      # ActiveMQ username
+    password: admin                  # ActiveMQ password
+    packages:
+      trust-all: true                # Trust all packages for serialization
+
 server:
   port: ${TRAINING_REPORT_PORT:0}
 

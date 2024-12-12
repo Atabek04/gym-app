@@ -8,10 +8,10 @@ import com.epam.gym.main.dto.TraineeUpdateRequest;
 import com.epam.gym.main.dto.TrainingResponse;
 import com.epam.gym.main.dto.UserCredentials;
 import com.epam.gym.main.exception.ResourceNotFoundException;
-import com.epam.gym.main.feign.AuthServiceClient;
-import com.epam.gym.main.feign.TrainingReportNotifier;
 import com.epam.gym.main.mapper.TrainerMapper;
 import com.epam.gym.main.mapper.TrainingMapper;
+import com.epam.gym.main.messaging.AuthServiceNotifier;
+import com.epam.gym.main.messaging.TrainingReportNotifier;
 import com.epam.gym.main.model.Trainee;
 import com.epam.gym.main.model.Trainer;
 import com.epam.gym.main.model.Training;
@@ -52,7 +52,7 @@ public class TraineeServiceImpl implements TraineeService {
     private final TrainerRepository trainerRepository;
     private final TrainingRepository trainingRepository;
     private final TrainingReportNotifier trainingReportNotifier;
-    private final AuthServiceClient authServiceClient;
+    private final AuthServiceNotifier authServiceNotifier;
 
     @Transactional
     @Override
@@ -287,8 +287,7 @@ public class TraineeServiceImpl implements TraineeService {
         traineeRepository.deleteByUserUsername(username);
 
         log.info("Sending request to delete security user with username {}", username);
-        authServiceClient.deleteUserByUsername(username);
-
+        authServiceNotifier.deleteUser(username);
         log.info("Trainee with username: {} deleted successfully.", username);
 
         trainingReportNotifier.removeTrainerWorkload(username, UserType.TRAINEE);

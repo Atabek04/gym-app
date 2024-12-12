@@ -1,6 +1,5 @@
 package com.epam.gym.authservice.controller;
 
-import com.epam.gym.authservice.config.TestSecurityConfig;
 import com.epam.gym.authservice.dto.AuthUserDTO;
 import com.epam.gym.authservice.dto.UserCredentials;
 import com.epam.gym.authservice.dto.UserNewPasswordCredentials;
@@ -11,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
@@ -31,7 +29,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@WebMvcTest(controllers = AuthController.class)
 @AutoConfigureMockMvc
 @Import(TestSecurityConfig.class)
 class AuthControllerTest {
