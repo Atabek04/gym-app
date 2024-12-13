@@ -5,6 +5,13 @@ spring:
   application:
     name: gym-app
 
+  activemq:
+    broker-url: tcp://localhost:61616 # External ActiveMQ broker
+    user: admin                      # ActiveMQ username
+    password: admin                  # ActiveMQ password
+    packages:
+      trust-all: true                # Trust all packages for serialization
+
   jpa:
     hibernate:
       ddl-auto: none
@@ -51,6 +58,7 @@ management:
     enabled: true
     sampling:
       probability: 1.0
+
 
 resilience4j:
   circuitbreaker:

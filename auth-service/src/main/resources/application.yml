@@ -17,6 +17,13 @@ spring:
     hibernate:
       ddl-auto: none
 
+  activemq:
+    broker-url: tcp://localhost:61616 # External ActiveMQ broker
+    user: admin                      # ActiveMQ username
+    password: admin                  # ActiveMQ password
+    packages:
+      trust-all: true                # Trust all packages for serialization
+
 security:
   jwt:
     secret-key: ${JWT_SECRET_KEY}
