@@ -1,0 +1,81 @@
+server:
+  port: 0
+
+spring:
+  activemq:
+    broker-url: tcp://localhost:61616 # External ActiveMQ broker
+    user: admin                      # ActiveMQ username
+    password: admin                  # ActiveMQ password
+    packages:
+      trust-all: true                # Trust all packages for serialization
+
+  datasource:
+    url: ${DB_POSTGRES_URL}
+    username: ${DB_POSTGRES_USERNAME}
+    password: ${DB_POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+  main:
+    allow-bean-definition-overriding: true
+
+  flyway:
+    schemas: public
+    enabled: false
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    clean-disabled: true
+    default-schema: public
+    baseline-version: 11
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: false
+    hostname: localhost
+
+logging:
+  level:
+    root: INFO
+    sun.rmi.transport.tcp: WARN
+    sun.rmi.server: ERROR
+    sun.rmi.registry: ERROR
+    sun.rmi.loader: WARN
+    javax.management.remote.rmi: WARN
+
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        minimumNumberOfCalls: 5
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+    instances:
+      trainingReportClient:
+        baseConfig: default

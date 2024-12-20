@@ -1,20 +1,16 @@
-server:
-  port: 8761
-
 spring:
   application:
-    name: eureka-server
+    name: api-gateway
 
-eureka:
-  client:
-    register-with-eureka: false
-    fetch-registry: false # Since this is the server itself, it won't register with any other Eureka instance
+  config:
+    import:
+      - optional:configserver:http://localhost:8888
+      - file:./env.properties
+
+  cloud:
+    config:
+      fail-fast: true
 
 logging:
   level:
-    root: WARN
-    sun.rmi.transport.tcp: WARN
-    sun.rmi.server: ERROR
-    sun.rmi.registry: ERROR
-    sun.rmi.loader: WARN
-    javax.management.remote.rmi: WARN
+    root: INFO
