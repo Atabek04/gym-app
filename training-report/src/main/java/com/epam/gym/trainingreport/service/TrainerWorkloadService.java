@@ -26,23 +26,23 @@ public class TrainerWorkloadService {
 
     @Transactional
     public void processTraining(TrainerWorkloadRequest request) {
-        log.info("Processing training for user: {}", request.username());
+        log.info("Processing training for user: {}", request.getUsername());
         var workload = findOrCreateTrainerWorkload(request);
-        var trainingYear = findOrCreateTrainingYear(workload, YearMonth.from(request.trainingDate()).getYear());
-        updateTrainingDurations(trainingYear, YearMonth.from(request.trainingDate()).getMonthValue(), request);
+        var trainingYear = findOrCreateTrainingYear(workload, YearMonth.from(request.getTrainingDate()).getYear());
+        updateTrainingDurations(trainingYear, YearMonth.from(request.getTrainingDate()).getMonthValue(), request);
         repository.save(workload);
-        log.info("Training processed and saved for user: {}", request.username());
+        log.info("Training processed and saved for user: {}", request.getUsername());
     }
 
     private TrainerWorkload findOrCreateTrainerWorkload(TrainerWorkloadRequest request) {
-        return repository.findByUsername(request.username())
+        return repository.findByUsername(request.getUsername())
                 .orElseGet(() -> {
-                    log.debug("Creating new trainer workload for user: {}", request.username());
+                    log.debug("Creating new trainer workload for user: {}", request.getUsername());
                     return TrainerWorkload.builder()
-                            .username(request.username())
-                            .firstName(request.firstName())
-                            .lastName(request.lastName())
-                            .isActive(request.isActive())
+                            .username(request.getUsername())
+                            .firstName(request.getFirstName())
+                            .lastName(request.getLastName())
+                            .isActive(request.getIsActive())
                             .yearlySummary(new ArrayList<>())
                             .build();
                 });
@@ -64,15 +64,15 @@ public class TrainerWorkloadService {
                 .filter(t -> t.getMonth() == month)
                 .findFirst();
 
-        if (request.actionType() == ActionType.ADD) {
+        if (request.getActionType() == ActionType.ADD) {
             existingDuration.ifPresentOrElse(
-                    duration -> duration.setTotalDuration(duration.getTotalDuration() + request.trainingDuration()),
+                    duration -> duration.setTotalDuration(duration.getTotalDuration() + request.getTrainingDuration()),
                     () -> {
-                        TrainingDuration newDuration = new TrainingDuration(month, request.trainingDuration(), trainingYear);
+                        TrainingDuration newDuration = new TrainingDuration(month, request.getTrainingDuration(), trainingYear);
                         trainingYear.getTrainingDurations().add(newDuration);
                     }
             );
-        } else if (request.actionType() == ActionType.DELETE) {
+        } else if (request.getActionType() == ActionType.DELETE) {
             existingDuration.ifPresent(trainingYear.getTrainingDurations()::remove);
         }
     }

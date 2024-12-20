@@ -2,11 +2,12 @@ package com.epam.gym.main.service.impl;
 
 import com.epam.gym.main.dto.AuthUserDTO;
 import com.epam.gym.main.exception.ResourceNotFoundException;
-import com.epam.gym.main.feign.AuthServiceClient;
+import com.epam.gym.main.messaging.AuthServiceNotifier;
 import com.epam.gym.main.model.User;
 import com.epam.gym.main.model.UserRole;
 import com.epam.gym.main.repository.UserRepository;
 import com.epam.gym.main.service.UserService;
+import com.epam.gym.trainingreport.model.ActionType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ import static com.epam.gym.main.util.UserUtils.generateUsername;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepo;
-    private final AuthServiceClient authServiceClient;
+    private final AuthServiceNotifier authServiceNotifier;
 
     @Override
     public Optional<User> create(User user, UserRole role, String plainPassword) {
@@ -40,9 +41,11 @@ public class UserServiceImpl implements UserService {
                 .password(plainPassword)
                 .role(role)
                 .isActive(true)
+                .actionType(ActionType.ADD)
                 .build();
 
-        authServiceClient.createUser(authRequest);
+        authServiceNotifier.createUser(authRequest);
+
         var savedUser = userRepo.save(user);
 
         log.info("User {} with username: {} created successfully.", savedUser.getId(), savedUser.getUsername());
@@ -71,5 +74,4 @@ public class UserServiceImpl implements UserService {
 
         log.info("User with ID: {} deleted successfully.", id);
     }
-
 }

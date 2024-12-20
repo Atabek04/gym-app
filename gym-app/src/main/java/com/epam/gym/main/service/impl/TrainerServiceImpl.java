@@ -7,9 +7,9 @@ import com.epam.gym.main.dto.TrainerUpdateRequest;
 import com.epam.gym.main.dto.TrainingResponse;
 import com.epam.gym.main.dto.UserCredentials;
 import com.epam.gym.main.exception.ResourceNotFoundException;
-import com.epam.gym.main.feign.AuthServiceClient;
-import com.epam.gym.main.feign.TrainingReportNotifier;
 import com.epam.gym.main.mapper.TrainingMapper;
+import com.epam.gym.main.messaging.AuthServiceNotifier;
+import com.epam.gym.main.messaging.TrainingReportNotifier;
 import com.epam.gym.main.model.Trainer;
 import com.epam.gym.main.model.Training;
 import com.epam.gym.main.model.UserRole;
@@ -41,7 +41,7 @@ public class TrainerServiceImpl implements TrainerService {
     private final UserService userService;
     private final TrainingRepository trainingRepository;
     private final TrainingReportNotifier trainingReportNotifier;
-    private final AuthServiceClient authServiceClient;
+    private final AuthServiceNotifier authServiceNotifier;
 
     @Override
     public Trainer create(Trainer trainer) {
@@ -147,7 +147,7 @@ public class TrainerServiceImpl implements TrainerService {
         delete(trainerId);
 
         log.info("Sending request to delete security user with username {}", username);
-        authServiceClient.deleteUserByUsername(username);
+        authServiceNotifier.deleteUser(username);
 
         log.info("Trainer deleted successfully: {}", username);
 

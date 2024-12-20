@@ -1,6 +1,5 @@
 package com.epam.gym.authservice.controller;
 
-import com.epam.gym.authservice.config.TestSecurityConfig;
 import com.epam.gym.authservice.dto.AuthUserDTO;
 import com.epam.gym.authservice.dto.UserCredentials;
 import com.epam.gym.authservice.dto.UserNewPasswordCredentials;
@@ -12,9 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Map;
@@ -30,19 +28,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
-@WebMvcTest(controllers = AuthController.class)
-@AutoConfigureMockMvc
-@Import(TestSecurityConfig.class)
+@AutoConfigureMockMvc(addFilters = false)
+@WebMvcTest(AuthController.class)
 class AuthControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private SecurityUserService securityUserService;
 
-    @MockBean
+    @MockitoBean
     private AuthService authService;
 
     @Test
