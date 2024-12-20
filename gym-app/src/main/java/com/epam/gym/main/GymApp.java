@@ -1,5 +1,6 @@
 package com.epam.gym.main;
 
+import com.epam.gym.main.dto.AuthUserDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -11,6 +12,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @SpringBootApplication(scanBasePackages = "com.epam.gym")
 @EnableDiscoveryClient
@@ -30,6 +34,10 @@ public class GymApp {
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         converter.setObjectMapper(objectMapper);
+
+        Map<String, Class<?>> typeIdMappings = new HashMap<>();
+        typeIdMappings.put("AuthUserDTO", AuthUserDTO.class);
+        converter.setTypeIdMappings(typeIdMappings);
 
         return converter;
     }

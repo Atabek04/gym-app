@@ -6,13 +6,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthUserMessageDTO implements Serializable {
+public class AuthUserMessageDTO {
     private String username;
     private String password;
     private UserRole role;

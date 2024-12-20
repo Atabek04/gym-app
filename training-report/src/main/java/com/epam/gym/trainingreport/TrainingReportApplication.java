@@ -1,5 +1,6 @@
 package com.epam.gym.trainingreport;
 
+import com.epam.gym.trainingreport.dto.TrainerWorkloadRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -10,6 +11,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @SpringBootApplication
 @EnableDiscoveryClient
@@ -29,6 +33,10 @@ public class TrainingReportApplication {
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         converter.setObjectMapper(objectMapper);
+
+        Map<String, Class<?>> typeIdMappings = new HashMap<>();
+        typeIdMappings.put("TrainerWorkloadRequest", TrainerWorkloadRequest.class);
+        converter.setTypeIdMappings(typeIdMappings);
 
         return converter;
     }
