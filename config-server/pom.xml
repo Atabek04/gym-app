@@ -14,4 +14,11 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>config-server</name>
 	<description>config-server</description>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-config-server</artifactId>
+		</dependency>
+	</dependencies>
 </project>

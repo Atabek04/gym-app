@@ -16,7 +16,6 @@
     <description>api-gateway</description>
 
     <properties>
-        <spring.boot.version>3.4.0</spring.boot.version>
         <micrometer.tracing.briedge.version>1.4.0</micrometer.tracing.briedge.version>
         <spring.cloud.zipkin.version>2.2.8.RELEASE</spring.cloud.zipkin.version>
         <openapi.version>2.1.0</openapi.version>
@@ -24,6 +23,9 @@
         <postgresql.reactive.version>1.0.7.RELEASE</postgresql.reactive.version>
         <eureka.client.version>4.2.0</eureka.client.version>
         <micrometer.registry.prometheus.version>1.14.2</micrometer.registry.prometheus.version>
+        <jackson.databind.version>2.18.1</jackson.databind.version>
+        <gson.version>2.11.0</gson.version>
+        <reactir.netty.core.version>1.2.0</reactir.netty.core.version>
     </properties>
 
     <dependencies>
@@ -32,6 +34,18 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
             <version>${spring.boot.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.projectreactor.netty</groupId>
+                    <artifactId>reactor-netty-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>io.projectreactor.netty</groupId>
+            <artifactId>reactor-netty-core</artifactId>
+            <version>${reactir.netty.core.version}</version>
         </dependency>
 
         <dependency>
@@ -70,6 +84,12 @@
             <artifactId>jjwt-jackson</artifactId>
             <version>${jwt.version}</version>
             <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.databind.version}</version>
         </dependency>
 
         <!--    ==== DevOps Tools ====    -->

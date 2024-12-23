@@ -1,16 +1,12 @@
 spring:
   application:
-    name: api-gateway
+    name: eureka-server
 
   config:
     import:
       - optional:configserver:http://localhost:8888
-      - file:./env.properties
+      - optional:file:./env.properties
 
   cloud:
     config:
       fail-fast: true
-
-logging:
-  level:
-    root: INFO

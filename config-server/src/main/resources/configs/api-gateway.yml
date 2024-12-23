@@ -5,9 +5,6 @@ spring:
   security:
     enabled: false
 
-#  config:
-#    import: file:./env.properties
-
   r2dbc:
     url: ${DB_POSTGRES_REACTIVE_URL}
     username: ${DB_POSTGRES_USERNAME}
@@ -105,3 +102,12 @@ management:
     web:
       exposure:
         include: "*"
+
+logging:
+  level:
+    root: INFO
+    sun.rmi.transport.tcp: WARN
+    sun.rmi.server: ERROR
+    sun.rmi.registry: ERROR
+    sun.rmi.loader: WARN
+    javax.management.remote.rmi: WARN
