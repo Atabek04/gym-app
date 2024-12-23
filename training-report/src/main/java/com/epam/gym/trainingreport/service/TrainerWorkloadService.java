@@ -8,7 +8,6 @@ import com.epam.gym.trainingreport.model.TrainerWorkload;
 import com.epam.gym.trainingreport.model.TrainingDuration;
 import com.epam.gym.trainingreport.model.TrainingYear;
 import com.epam.gym.trainingreport.repository.TrainerWorkloadRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,12 +23,15 @@ public class TrainerWorkloadService {
 
     private final TrainerWorkloadRepository repository;
 
-    @Transactional
     public void processTraining(TrainerWorkloadRequest request) {
         log.info("Processing training for user: {}", request.getUsername());
         var workload = findOrCreateTrainerWorkload(request);
-        var trainingYear = findOrCreateTrainingYear(workload, YearMonth.from(request.getTrainingDate()).getYear());
-        updateTrainingDurations(trainingYear, YearMonth.from(request.getTrainingDate()).getMonthValue(), request);
+
+        var year = YearMonth.from(request.getTrainingDate()).getYear();
+        var month = YearMonth.from(request.getTrainingDate()).getMonthValue();
+
+        var trainingYear = findOrCreateTrainingYear(workload, year);
+        updateTrainingDurations(trainingYear, month, request);
         repository.save(workload);
         log.info("Training processed and saved for user: {}", request.getUsername());
     }
@@ -53,7 +55,10 @@ public class TrainerWorkloadService {
                 .filter(y -> y.getYear() == year)
                 .findFirst()
                 .orElseGet(() -> {
-                    TrainingYear newYear = new TrainingYear(null, year, workload, new ArrayList<>());
+                    var newYear = TrainingYear.builder()
+                            .year(year)
+                            .trainingDurations(new ArrayList<>())
+                            .build();
                     workload.getYearlySummary().add(newYear);
                     return newYear;
                 });
@@ -68,7 +73,10 @@ public class TrainerWorkloadService {
             existingDuration.ifPresentOrElse(
                     duration -> duration.setTotalDuration(duration.getTotalDuration() + request.getTrainingDuration()),
                     () -> {
-                        TrainingDuration newDuration = new TrainingDuration(month, request.getTrainingDuration(), trainingYear);
+                        var newDuration = TrainingDuration.builder()
+                                .month(month)
+                                .totalDuration(request.getTrainingDuration())
+                                .build();
                         trainingYear.getTrainingDurations().add(newDuration);
                     }
             );

@@ -20,16 +20,9 @@
         <eureka-client.version>4.2.0</eureka-client.version>
         <activemq-broker.version>6.1.4</activemq-broker.version>
         <jackson.version>2.18.2</jackson.version>
-        <h2.version>2.3.232</h2.version>
     </properties>
     <dependencies>
         <!--    ==== Spring Boot Starters ====    -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-            <version>${spring.boot.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -62,10 +55,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
-            <version>${h2.version}</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
     </dependencies>
 </project>

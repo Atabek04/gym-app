@@ -29,7 +29,7 @@ public class TrainerWorkloadController implements TrainerWorkloadApi {
     }
 
     @GetMapping("/{username}")
-    public TrainerWorkloadResponse getTrainerSummary(@PathVariable String username) {
+    public TrainerWorkloadResponse getTrainerSummary(@PathVariable("username") String username) {
         return service.getTrainerSummary(username);
     }
 
