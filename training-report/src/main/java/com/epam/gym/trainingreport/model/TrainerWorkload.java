@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -22,7 +23,11 @@ public class TrainerWorkload {
     @Id
     private String id;
     private String username;
+
+    @Indexed
     private String firstName;
+
+    @Indexed
     private String lastName;
     private Boolean isActive;
 

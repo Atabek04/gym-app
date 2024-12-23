@@ -17,6 +17,6 @@ public class TrainingReportConsumer {
     @JmsListener(destination = "training-report-queue")
     public void processTrainingReportMessage(TrainerWorkloadRequest request) {
         log.info("Received message from training-report-queue: {}", request);
-        service.processTraining(request);
+        service.createTrainerWorkload(request);
     }
 }

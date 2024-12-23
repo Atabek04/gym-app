@@ -63,41 +63,12 @@ class TrainerWorkloadControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
-        verify(service, times(1)).processTraining(request);
+        verify(service, times(1)).createTrainerWorkload(request);
     }
-
-//    @Test
-//    void getTrainerSummary_WithExistingUsername_ShouldReturnTrainerWorkloadResponse() throws Exception {
-//        var trainingDurations = List.of(
-//                new TrainingDuration(1, 120, null),
-//                new TrainingDuration(2, 180, null)
-//        );
-//
-//        var trainingYear = new TrainingYear();
-//        trainingYear.setYear(2024);
-//        trainingYear.setTrainingDurations(trainingDurations);
-//
-//        var response = TrainerWorkloadResponse.builder()
-//                .username("Super.Trainer")
-//                .yearlySummary(List.of(trainingYear))
-//                .build();
-//
-//        when(service.getTrainerSummary("Super.Trainer")).thenReturn(response);
-//
-//        mockMvc.perform(get("/api/v1/workload/{username}", "Super.Trainer")
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.username").value("Super.Trainer"))
-//                .andExpect(jsonPath("$.years[0].year").value(2024))
-//                .andExpect(jsonPath("$.years[0].months[0].month").value(1))
-//                .andExpect(jsonPath("$.years[0].months[0].totalDuration").value(120));
-//
-//        verify(service, times(1)).getTrainerSummary("Super.Trainer");
-//    }
 
     @Test
     void getTrainerSummary_WithNonExistingUsername_ShouldReturnNotFound() throws Exception {
-        when(service.getTrainerSummary("NonExistent.Trainer"))
+        when(service.getTrainerWorkload("NonExistent.Trainer"))
                 .thenThrow(new TrainerWorkloadNotFoundException("Trainer workload not found"));
 
         mockMvc.perform(get("/api/v1/workload/{username}", "NonExistent.Trainer")
@@ -105,6 +76,6 @@ class TrainerWorkloadControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("Trainer workload not found"));
 
-        verify(service, times(1)).getTrainerSummary("NonExistent.Trainer");
+        verify(service, times(1)).getTrainerWorkload("NonExistent.Trainer");
     }
 }

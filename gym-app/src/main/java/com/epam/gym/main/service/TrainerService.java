@@ -15,15 +15,13 @@ public interface TrainerService {
 
     UserCredentials create(TrainerRequest request);
 
-    TrainerResponse getTrainerAndTrainees(String username);
+    TrainerResponse getTrainerWithTrainees(String username);
 
     List<TrainingResponse> findTrainerTrainings(String username, TrainerTrainingFilterRequest filterRequest);
 
     void update(Trainer trainer, Long id);
 
     TrainerResponse updateTrainerAndUser(TrainerUpdateRequest request, String username);
-
-    void delete(Long id);
 
     void delete(String username);
 }

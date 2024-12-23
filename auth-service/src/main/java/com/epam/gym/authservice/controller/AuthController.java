@@ -3,7 +3,6 @@ package com.epam.gym.authservice.controller;
 import com.epam.gym.authservice.dto.AuthUserDTO;
 import com.epam.gym.authservice.dto.UserCredentials;
 import com.epam.gym.authservice.dto.UserNewPasswordCredentials;
-import com.epam.gym.authservice.exception.AuthenticationException;
 import com.epam.gym.authservice.service.AuthService;
 import com.epam.gym.authservice.service.SecurityUserService;
 import lombok.RequiredArgsConstructor;
@@ -31,19 +30,21 @@ public class AuthController implements AuthApi {
 
     @PostMapping("/users")
     public void createUser(@RequestBody AuthUserDTO createAuthUserDTO) {
-        log.info("Received request to create SecurityUser with username: {}", createAuthUserDTO.username());
+        log.info("Received request to create SecurityUser");
         securityUserService.createUser(createAuthUserDTO);
+        log.info("Successfully created user");
     }
 
     @DeleteMapping("/users/{username}")
     public void deleteUserByUsername(@PathVariable String username) {
-        log.info("Received request to delete SecurityUser with username: {}", username);
+        log.info("Received request to delete SecurityUser");
         securityUserService.deleteUserByUsername(username);
+        log.info("Successfully deleted user");
     }
 
     @GetMapping("/users/exists/{username}")
     public Boolean isUsernameTaken(@PathVariable String username) {
-        log.info("Received request to check if username is taken: {}", username);
+        log.info("Received request to check if username is taken");
         return securityUserService.isUsernameTaken(username);
     }
 
@@ -57,21 +58,22 @@ public class AuthController implements AuthApi {
     @Override
     @PostMapping("/refresh-token")
     public Map<String, String> refreshToken(@RequestBody String refreshToken) {
+        log.info("Received request to refresh token");
         return authService.refreshToken(refreshToken);
     }
 
     @Override
     @PutMapping("/password")
     public void changePassword(@RequestBody UserNewPasswordCredentials credentials) {
+        log.info("Received request to change password for user");
         authService.changePassword(credentials);
+        log.info("Successfully changed password");
     }
 
     @Override
     @PostMapping("/logout")
     public String logout(@AuthenticationPrincipal String username) {
-        if (username == null) {
-            throw new AuthenticationException("User is not authenticated.");
-        }
+        log.info("Received request to logout user");
         authService.logout(username);
         return "User successfully logged out and refresh token deleted.";
     }

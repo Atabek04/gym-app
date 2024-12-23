@@ -96,7 +96,7 @@ class TraineeControllerTest {
                 .trainers(Collections.emptyList())
                 .build();
 
-        when(traineeService.getTraineeAndTrainers("Super.Trainee")).thenReturn(response);
+        when(traineeService.getTraineeWithTrainers("Super.Trainee")).thenReturn(response);
 
         mockMvc.perform(get("/api/v1/trainees/{username}", "Super.Trainee")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -105,7 +105,7 @@ class TraineeControllerTest {
                 .andExpect(jsonPath("$.firstName").value("Abu"))
                 .andExpect(jsonPath("$.lastName").value("Yusuf"));
 
-        verify(traineeService, times(1)).getTraineeAndTrainers("Super.Trainee");
+        verify(traineeService, times(1)).getTraineeWithTrainers("Super.Trainee");
     }
 
     @Test
@@ -174,7 +174,7 @@ class TraineeControllerTest {
                                 .build()))
                 .build();
 
-        when(traineeService.getTraineeAndTrainers("Super.Trainee")).thenReturn(response);
+        when(traineeService.getTraineeWithTrainers("Super.Trainee")).thenReturn(response);
 
         mockMvc.perform(put("/api/v1/trainees/{username}/trainers", "Super.Trainee")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -184,7 +184,7 @@ class TraineeControllerTest {
                 .andExpect(jsonPath("$.trainers[1].firstName").value("Trainer2"));
 
         verify(traineeService, times(1)).updateTrainers("Super.Trainee", trainerUsernames);
-        verify(traineeService, times(1)).getTraineeAndTrainers("Super.Trainee");
+        verify(traineeService, times(1)).getTraineeWithTrainers("Super.Trainee");
     }
 
     @Test

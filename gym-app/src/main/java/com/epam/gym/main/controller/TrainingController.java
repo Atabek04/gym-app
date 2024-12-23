@@ -29,12 +29,14 @@ public class TrainingController implements TrainingApi {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void createTraining(@Valid @RequestBody TrainingRequest request) {
+        log.info("Received request to create training: {}", request);
         trainingService.create(request);
     }
 
     @Override
     @GetMapping
     public List<TrainingTypeResponse> listAllTrainingTypes() {
+        log.info("Received request to list all training types.");
         return trainingService.getAllTrainingTypes();
     }
 }

@@ -34,3 +34,10 @@ management:
     enabled: true
     sampling:
       probability: 1.0
+
+logging:
+  pattern:
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} [%clr(%X{traceId:-}){blue}] [%clr(%X{spanId:-}){blue}] [%clr(%thread){cyan}] %clr(%-5level){yellow} %clr(%logger{36}){magenta} - %clr(%msg){faint}%n"
+
+  level:
+    root: INFO

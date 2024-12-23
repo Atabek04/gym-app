@@ -23,8 +23,8 @@ public class TrainerWorkloadService {
 
     private final TrainerWorkloadRepository repository;
 
-    public void processTraining(TrainerWorkloadRequest request) {
-        log.info("Processing training for user: {}", request.getUsername());
+    public void createTrainerWorkload(TrainerWorkloadRequest request) {
+        log.debug("Processing trainer workload with username: {}", request.getUsername());
         var workload = findOrCreateTrainerWorkload(request);
 
         var year = YearMonth.from(request.getTrainingDate()).getYear();
@@ -85,10 +85,11 @@ public class TrainerWorkloadService {
         }
     }
 
-    public TrainerWorkloadResponse getTrainerSummary(String username) {
+    public TrainerWorkloadResponse getTrainerWorkload(String username) {
+        log.debug("Getting trainer summary for user: {}", username);
         TrainerWorkload workload = repository.findByUsername(username)
                 .orElseThrow(() -> new TrainerWorkloadNotFoundException("Trainer not found"));
-
+        log.info("Trainer summary found for user");
         return TrainerWorkloadResponse.builder()
                 .username(workload.getUsername())
                 .yearlySummary(workload.getYearlySummary())

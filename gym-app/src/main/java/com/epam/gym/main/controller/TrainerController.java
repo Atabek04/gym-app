@@ -40,12 +40,14 @@ public class TrainerController implements TrainerApi {
     @PermitAll
     @ResponseStatus(HttpStatus.CREATED)
     public UserCredentials createTrainer(@Valid @RequestBody TrainerRequest request) {
+        log.info("Received request to create trainer");
         return trainerService.create(request);
     }
 
     @GetMapping("/{username}")
     public TrainerResponse getTrainerByUsername(@PathVariable("username") String username) {
-        return trainerService.getTrainerAndTrainees(username);
+        log.info("Received request to get trainer");
+        return trainerService.getTrainerWithTrainees(username);
     }
 
     @PutMapping("/{username}")
@@ -53,12 +55,14 @@ public class TrainerController implements TrainerApi {
             @PathVariable("username") String username,
             @Valid @RequestBody TrainerUpdateRequest request
     ) {
+        log.info("Received request to update trainer");
         return trainerService.updateTrainerAndUser(request, username);
     }
 
     @DeleteMapping("/{username}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTrainer(@PathVariable("username") String username) {
+        log.info("Received request to delete trainer");
         trainerService.delete(username);
     }
 
@@ -67,6 +71,7 @@ public class TrainerController implements TrainerApi {
             @PathVariable(required = false) String username,
             @Valid @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime periodFrom,
             @Valid @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime periodTo) {
+        log.info("Received request to get trainer trainings");
         var filterRequest = TrainerTrainingFilterRequest.builder()
                 .periodFrom(periodFrom)
                 .periodTo(periodTo)

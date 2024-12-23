@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,28 +43,33 @@ public class TraineeController implements TraineeApi {
     @ResponseStatus(HttpStatus.CREATED)
     @PermitAll
     public UserCredentials createTrainee(@RequestBody TraineeRequest request) {
+        log.info("Received request to create trainee");
         return traineeService.create(request);
     }
 
     @Override
     @GetMapping("/{username}")
     public TraineeResponse getTraineeByUsername(@PathVariable String username) {
-        return traineeService.getTraineeAndTrainers(username);
+        log.info("Received request to get trainee by username");
+        return traineeService.getTraineeWithTrainers(username);
     }
 
     @Override
     @PutMapping("/{username}")
     public TraineeResponse updateTrainee(@PathVariable("username") String traineeUsername,
                                          @RequestBody TraineeUpdateRequest request) {
+        log.info("Received request to update trainee");
         return traineeService.updateTraineeAndUser(request, traineeUsername);
     }
 
     @Override
+    @Transactional
     @PutMapping("/{username}/trainers")
     public TraineeResponse updateTrainers(@PathVariable String username,
                                           @RequestBody List<String> trainerUsernames) {
+        log.info("Received request to update trainers list for trainee");
         traineeService.updateTrainers(username, trainerUsernames);
-        return traineeService.getTraineeAndTrainers(username);
+        return traineeService.getTraineeWithTrainers(username);
     }
 
     @Override
@@ -82,7 +88,7 @@ public class TraineeController implements TraineeApi {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime periodTo,
             @RequestParam(required = false) String trainerName,
             @RequestParam(required = false) TrainingType trainingType) {
-
+        log.info("Received request to get trainee's trainings");
         TraineeTrainingFilterRequest filterRequest = TraineeTrainingFilterRequest.builder()
                 .periodFrom(periodFrom)
                 .periodTo(periodTo)
@@ -97,6 +103,7 @@ public class TraineeController implements TraineeApi {
     @DeleteMapping("/{username}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTrainee(@PathVariable String username) {
+        log.info("Received request to delete trainee");
         traineeService.delete(username);
     }
 }
