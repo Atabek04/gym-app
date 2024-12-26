@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<User> create(User user, UserRole role, String plainPassword) {
-        log.info("Creating new user with firstName: {} and lastName: {}", user.getFirstName(), user.getLastName());
+        log.info("Creating new user with firstName {} and lastName {}", user.getFirstName(), user.getLastName());
 
         var username = generateUsername(
                 user.getFirstName(),

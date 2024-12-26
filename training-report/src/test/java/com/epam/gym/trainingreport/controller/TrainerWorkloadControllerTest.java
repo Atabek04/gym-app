@@ -47,7 +47,7 @@ class TrainerWorkloadControllerTest {
     }
 
     @Test
-    void handleTraining_WithValidRequest_ShouldReturnOk() throws Exception {
+    void createTrainerWorkload_ShouldReturnCreated() throws Exception {
         var request = TrainerWorkloadRequest.builder()
                 .username("Super.Trainer")
                 .firstName("Super")
@@ -61,7 +61,7 @@ class TrainerWorkloadControllerTest {
         mockMvc.perform(post("/api/v1/workload/report")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         verify(service, times(1)).createTrainerWorkload(request);
     }

@@ -68,9 +68,9 @@ public class TrainerController implements TrainerApi {
 
     @GetMapping("/{username}/trainings")
     public List<TrainingResponse> getTrainerTrainings(
-            @PathVariable(required = false) String username,
-            @Valid @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime periodFrom,
-            @Valid @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime periodTo) {
+            @PathVariable(name = "username") String username,
+            @Valid @RequestParam(required = false, name = "periodFrom") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime periodFrom,
+            @Valid @RequestParam(required = false, name = "periodTo") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime periodTo) {
         log.info("Received request to get trainer trainings");
         var filterRequest = TrainerTrainingFilterRequest.builder()
                 .periodFrom(periodFrom)

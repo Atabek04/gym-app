@@ -4,7 +4,7 @@ server:
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/training-report-db
+      uri: ${MONGO_DB_URL}
       auto-index-creation: true
 
   cloud:

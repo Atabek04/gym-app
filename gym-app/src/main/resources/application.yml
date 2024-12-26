@@ -5,7 +5,7 @@ spring:
   config:
     import:
       - optional:configserver:http://localhost:8888
-      - file:./env.properties
+      - file:../env.properties
 
   cloud:
     config:

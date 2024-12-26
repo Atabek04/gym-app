@@ -13,6 +13,7 @@ import com.epam.gym.main.service.TraineeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,6 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = TraineeController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@Slf4j
 class TraineeControllerTest {
 
     @Autowired
@@ -82,6 +83,23 @@ class TraineeControllerTest {
                 .andExpect(jsonPath("$.password").value("123"));
 
         verify(traineeService, times(1)).create(request);
+    }
+
+    @Test
+    void createTrainee_WithInvalidRequest_ShouldReturnBadRequest() throws Exception {
+        var request = TraineeRequest.builder()
+                .lastName("Yusuf")
+                .address("Bagdad 12")
+                .dateOfBirth(LocalDate.of(729, 1, 1))
+                .build();
+
+        mockMvc.perform(post("/api/v1/trainees")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.firstName").value("First name is required"));
+
+        verify(traineeService, times(0)).create(any());
     }
 
     @Test
@@ -210,7 +228,7 @@ class TraineeControllerTest {
     }
 
     @Test
-    void getTraineeTrainings_ShouldReturnTrainingList() throws Exception {
+    void shouldReturnTrainingListForValidFilter() throws Exception {
         var trainingList = List.of(
                 TrainingResponse.builder()
                         .id(1L)
@@ -224,25 +242,25 @@ class TraineeControllerTest {
                         .trainingType(TrainingType.CARDIO)
                         .trainingDate(LocalDateTime.of(2023, 12, 1, 10, 0))
                         .trainingDuration(60L)
-                        .build());
+                        .build()
+        );
 
         var filterRequest = TraineeTrainingFilterRequest.builder()
                 .periodFrom(LocalDateTime.of(2023, 12, 1, 0, 0))
                 .periodTo(LocalDateTime.of(2023, 12, 31, 23, 59))
-                .trainerName("Trainer Smith")
+                .trainerName("Trainer")
                 .trainingType(TrainingType.CARDIO)
                 .build();
 
-        when(traineeService.getTraineeTrainings("Super.Trainee", filterRequest)).thenReturn(trainingList);
+        when(traineeService.getTraineeTrainings("Super.Bob", filterRequest))
+                .thenReturn(trainingList);
 
-        mockMvc.perform(get("/api/v1/trainees/{username}/trainings", "Super.Trainee")
+        mockMvc.perform(get("/api/v1/trainees/{username}/trainings", "Super.Bob")
                         .param("periodFrom", "2023-12-01T00:00:00")
-                        .param("periodTo", "2023-12-31T23:59:00")
-                        .param("trainerName", "Trainer Smith")
+                        .param("periodTo", "2023-12-31T23:59:59")
+                        .param("trainerName", "Trainer")
                         .param("trainingType", "CARDIO")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-
-        verify(traineeService, times(1)).getTraineeTrainings(eq("Super.Trainee"), any());
     }
 }

@@ -3,7 +3,9 @@ package com.epam.gym.authservice.controller;
 import com.epam.gym.authservice.dto.AuthUserDTO;
 import com.epam.gym.authservice.dto.UserCredentials;
 import com.epam.gym.authservice.dto.UserNewPasswordCredentials;
+import com.epam.gym.authservice.model.SecurityUser;
 import com.epam.gym.authservice.model.UserRole;
+import com.epam.gym.authservice.repository.SecurityUserRepository;
 import com.epam.gym.authservice.service.AuthService;
 import com.epam.gym.authservice.service.SecurityUserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,6 +18,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -37,6 +40,9 @@ class AuthControllerTest {
 
     @MockitoBean
     private SecurityUserService securityUserService;
+
+    @MockitoBean
+    private SecurityUserRepository securityUserRepository;
 
     @MockitoBean
     private AuthService authService;
@@ -61,6 +67,14 @@ class AuthControllerTest {
     @Test
     void deleteUserByUsername_ShouldReturnOk() throws Exception {
         var username = "Super.Man";
+        var user = SecurityUser.builder()
+                .username(username)
+                .password("$2a$12W")
+                .role(UserRole.ROLE_TRAINEE)
+                .isActive(true)
+                .build();
+
+        when(securityUserRepository.findByUsername(username)).thenReturn(Optional.of(user));
 
         mockMvc.perform(delete("/api/v1/auth/users/{username}", username)
                         .contentType(MediaType.APPLICATION_JSON))

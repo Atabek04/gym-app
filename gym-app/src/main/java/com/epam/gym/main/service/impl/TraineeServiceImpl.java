@@ -127,7 +127,8 @@ public class TraineeServiceImpl implements TraineeService {
             return;
         }
 
-        Trainee trainee = getTraineeByUsername(username);
+        Trainee trainee = findByUsername(username).orElseThrow(
+                () -> new ResourceNotFoundException("Trainee with username " + username + " not found"));
         Set<String> currentTrainerUsernames = getCurrentTrainerUsernames(username);
 
         addNewTrainers(trainerUsernames, currentTrainerUsernames, trainee);
@@ -199,9 +200,10 @@ public class TraineeServiceImpl implements TraineeService {
     @Transactional
     @Override
     public TraineeResponse getTraineeWithTrainers(String username) {
-        log.debug("getTraineeWithTrainers:: Fetching trainee by username: {}", username);
+        log.info("getTraineeWithTrainers:: Fetching trainee by username: {}", username);
+        var trainee = findByUsername(username).orElseThrow(
+                () -> new ResourceNotFoundException("Trainee with username " + username + " not found"));
         var trainerList = getAssignedTrainers(username).stream().toList();
-        var trainee = getTraineeByUsername(username);
         log.info("getTraineeWithTrainers:: Successfully fetched trainee");
         return toTraineeResponse(trainee, trainerList);
     }
@@ -225,7 +227,8 @@ public class TraineeServiceImpl implements TraineeService {
     public List<TrainingResponse> getTraineeTrainings(String username, TraineeTrainingFilterRequest filterRequest) {
         log.debug("Fetching trainings for trainee: {} with filters: {}", username, filterRequest);
 
-        Trainee trainee = getTraineeByUsername(username);
+        Trainee trainee = findByUsername(username).orElseThrow(
+                () -> new ResourceNotFoundException("Trainee with username " + username + " not found"));
         List<Training> trainings;
 
         if (filterRequest.getPeriodFrom() == null && filterRequest.getPeriodTo() == null
@@ -262,11 +265,6 @@ public class TraineeServiceImpl implements TraineeService {
                 filterRequest.getTrainerName(),
                 trainingTypeId
         );
-    }
-
-    private Trainee getTraineeByUsername(String username) {
-        return traineeRepository.findByUserUsername(username).orElseThrow(
-                () -> new ResourceNotFoundException("Trainee with username " + username + " not found"));
     }
 
     @Override

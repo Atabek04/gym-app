@@ -17,4 +17,5 @@ public class Constants {
     public static final String NOT_AVAILABLE = "Not Available";
     public static final String DEFAULT_PERIOD_FROM = "2024-02-14T14:00:00";
     public static final String DEFAULT_PERIOD_TO = "2030-01-01T12:00:00";
+    public static final String TRAINER_NOT_FOUND = "Trainer not found";
 }

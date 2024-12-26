@@ -36,14 +36,14 @@ public class AuthController implements AuthApi {
     }
 
     @DeleteMapping("/users/{username}")
-    public void deleteUserByUsername(@PathVariable String username) {
+    public void deleteUserByUsername(@PathVariable("username") String username) {
         log.info("Received request to delete SecurityUser");
         securityUserService.deleteUserByUsername(username);
         log.info("Successfully deleted user");
     }
 
     @GetMapping("/users/exists/{username}")
-    public Boolean isUsernameTaken(@PathVariable String username) {
+    public Boolean isUsernameTaken(@PathVariable("username") String username) {
         log.info("Received request to check if username is taken");
         return securityUserService.isUsernameTaken(username);
     }
