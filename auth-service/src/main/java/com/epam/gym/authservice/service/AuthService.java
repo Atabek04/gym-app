@@ -36,7 +36,7 @@ public class AuthService {
 
     public Map<String, String> login(UserCredentials credentials) {
         var user = userRepository.findByUsername(credentials.username())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new AuthenticationException("User not found"));
         log.debug("login:: User found: {}. Checking for lock and auth...", user.getUsername());
         checkAccountLock(user);
         authenticateUser(credentials);
@@ -113,7 +113,7 @@ public class AuthService {
     public void changePassword(UserNewPasswordCredentials credentials) {
         log.debug("Password change requested for user: {}", credentials.username());
         var user = userRepository.findByUsername(credentials.username())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + credentials.username()));
+                .orElseThrow(() -> new AuthenticationException("User not found with username: " + credentials.username()));
 
         if (passwordEncoder.matches(credentials.oldPassword(), user.getPassword())) {
             user.setPassword(passwordEncoder.encode(credentials.newPassword()));

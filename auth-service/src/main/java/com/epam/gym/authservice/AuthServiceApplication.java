@@ -1,6 +1,7 @@
 package com.epam.gym.authservice;
 
 import com.epam.gym.authservice.dto.AuthUserMessageDTO;
+import com.epam.gym.authservice.exception.CustomResponseErrorHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -11,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,5 +41,12 @@ public class AuthServiceApplication {
         converter.setTypeIdMappings(typeIdMappings);
 
         return converter;
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        var restTemplate = new RestTemplate();
+        restTemplate.setErrorHandler(new CustomResponseErrorHandler());
+        return restTemplate;
     }
 }

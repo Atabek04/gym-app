@@ -30,6 +30,9 @@
         <sl4f.api.version>2.0.16</sl4f.api.version>
         <logback.classic.version>1.5.12</logback.classic.version>
         <gson.version>2.11.0</gson.version>
+        <h2.version>2.3.232</h2.version>
+        <assertj.core.version>3.26.3</assertj.core.version>
+        <maven.dependency.version>3.7.0</maven.dependency.version>
     </properties>
 
     <dependencyManagement>
@@ -95,6 +98,12 @@
             <version>${spring.boot.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>${assertj.core.version}</version>
+        </dependency>
+
         <!--    ==== Additional Tools ====    -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -129,6 +138,13 @@
             <artifactId>zipkin-reporter-brave</artifactId>
             <version>${zipkin.reporter.brave.version}</version>
         </dependency>
+
+        <!-- =====- H2 DB -======  -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -155,6 +171,12 @@
                             </path>
                         </annotationProcessorPaths>
                     </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>${maven.dependency.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>

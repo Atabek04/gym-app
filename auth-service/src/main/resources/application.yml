@@ -1,11 +1,13 @@
 spring:
+  profiles:
+    active: default
   application:
     name: auth-service
 
   config:
     import:
       - optional:configserver:http://localhost:8888
-      - optional:file:./env.properties
+      - optional:file:../env.properties
 
   cloud:
     config:
