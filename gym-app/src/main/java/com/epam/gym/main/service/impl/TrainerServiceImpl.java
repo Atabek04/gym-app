@@ -114,12 +114,15 @@ public class TrainerServiceImpl implements TrainerService {
     public List<TrainingResponse> findTrainerTrainings(String username, TrainerTrainingFilterRequest filterRequest) {
         log.debug("Fetching trainings for trainer: {} using filters: {}", username, filterRequest);
 
+        var trainer = trainerRepository.findByUserUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Trainer not found"));
+
         List<Training> trainings;
         if (filterRequest.getPeriodFrom() == null || filterRequest.getPeriodTo() == null) {
-            trainings = trainingRepository.findTrainingsByTrainerUsername(username);
+            trainings = trainingRepository.findTrainingsByTrainerUsername(trainer.getUser().getUsername());
         } else {
             trainings = trainingRepository.findTrainingsByTrainerUsernameAndPeriod(
-                    username,
+                    trainer.getUser().getUsername(),
                     filterRequest.getPeriodFrom(),
                     filterRequest.getPeriodTo());
         }

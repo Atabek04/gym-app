@@ -1,4 +1,4 @@
-package com.epam.gym.main.cucumber.stepdefinition;
+package com.epam.gym.main.cucumber.stepdefinition.trainee;
 
 import com.epam.gym.main.dto.TraineeRequest;
 import com.epam.gym.main.dto.UserCredentials;
