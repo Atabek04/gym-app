@@ -19,7 +19,7 @@ public class SecurityUserService {
 
     @SuppressWarnings("UnusedReturnValue")
     public SecurityUser createUser(AuthUserDTO authUserDTO) {
-        log.info("Creating SecurityUser with username: {}", authUserDTO.username());
+        log.debug("Creating SecurityUser with username: {}", authUserDTO.username());
 
         if (securityUserRepository.findByUsername(authUserDTO.username()).isPresent()) {
             throw new IllegalArgumentException("Username is already taken: " + authUserDTO.username());
@@ -34,26 +34,23 @@ public class SecurityUserService {
                 .isAccountNonLocked(true)
                 .build();
 
-        var savedUser = securityUserRepository.save(securityUser);
-
-        log.info("SecurityUser with username: {} created successfully.", savedUser.getUsername());
-        return savedUser;
+        return securityUserRepository.save(securityUser);
     }
 
     public void deleteUserByUsername(String username) {
-        log.info("Deleting SecurityUser with username: {}", username);
+        log.debug("Deleting SecurityUser with username: {}", username);
 
         var user = securityUserRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
 
         securityUserRepository.delete(user);
-
-        log.info("SecurityUser with username: {} deleted successfully.", username);
     }
 
     public boolean isUsernameTaken(String username) {
-        log.info("Checking if username is taken: {}", username);
-        return securityUserRepository.findByUsername(username).isPresent();
+        log.debug("Checking if username is taken: {}", username);
+        var isTaken = securityUserRepository.findByUsername(username).isPresent();
+        log.debug("Successfully checked. Username {} isTaken status: {}", username, isTaken);
+        return isTaken;
     }
 }
 

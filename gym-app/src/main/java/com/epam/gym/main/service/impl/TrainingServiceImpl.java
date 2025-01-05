@@ -59,20 +59,20 @@ public class TrainingServiceImpl implements TrainingService {
 
     @Override
     public void create(TrainingRequest request) {
-        log.info("Creating training for request with trainer: {} and trainee: {}", request.trainerUsername(), request.traineeUsername());
+        log.debug("Creating training for request with trainer: {} and trainee: {}", request.trainerUsername(), request.traineeUsername());
         var trainer = trainerRepository.findByUserUsername(request.trainerUsername())
                 .orElseThrow(() -> new ResourceNotFoundException("Trainer not found"));
         var trainee = traineeRepository.findByUserUsername(request.traineeUsername())
                 .orElseThrow(() -> new ResourceNotFoundException("Trainee not found"));
         var training = trainingRepository.save(TrainingMapper.toTraining(request, trainee, trainer));
-        log.info("Training created successfully for trainee: {} and trainer: {}", request.traineeUsername(), request.trainerUsername());
+        log.info("Training created successfully");
 
+        log.info("Sending notification to training report notifier.");
         trainingReportNotifier.addTrainerWorkload(training);
     }
 
     @Override
     public List<TrainingTypeResponse> getAllTrainingTypes() {
-        log.info("Fetching all training types.");
         var trainings = trainingRepository.getAllTrainingTypes()
                 .stream()
                 .map(tr -> TrainingTypeResponse.builder()

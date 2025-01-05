@@ -12,8 +12,8 @@ public interface TrainerWorkloadApi {
 
     @Operation(summary = "Handle a new training report",
             description = "Process training data by adding or deleting training details.")
-    void handleTraining(TrainerWorkloadRequest request);
+    void createTrainerWorkload(TrainerWorkloadRequest request);
 
     @Operation(summary = "Get Trainer Summary", description = "Fetches training summary for a specified trainer.")
-    TrainerWorkloadResponse getTrainerSummary(@Parameter(example = "Super.Trainer") String username);
+    TrainerWorkloadResponse getTrainerWorkload(@Parameter(example = "Super.Trainer") String username);
 }

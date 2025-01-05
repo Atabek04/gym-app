@@ -1,112 +1,12 @@
-#file: noinspection SpringBootApplicationYaml
-server:
-  port: 8095
-
 spring:
-  security:
-    enabled: false
-
   application:
     name: api-gateway
 
   config:
-    import: "file:./env.properties"
-
-  r2dbc:
-    url: ${DB_POSTGRES_REACTIVE_URL}
-    username: ${DB_POSTGRES_USERNAME}
-    password: ${DB_POSTGRES_PASSWORD}
-
-  jpa:
-    hibernate:
-      ddl-auto: none
-
-  main:
-    allow-bean-definition-overriding: true
-    web-application-type: reactive
-
-  zipkin:
-    enabled: true
-    base-url: http://localhost:9411 # Default Zipkin URL
-    sender:
-      type: web
-    sampling:
-      probability: 1.0 # Sample 100% of the requests
+    import:
+      - optional:configserver:http://localhost:8888
+      - file:./env.properties
 
   cloud:
-    gateway:
-      discovery:
-        locator:
-          enabled: true
-
-      routes:
-        - id: trainees
-          uri: lb://GYM-APP
-          predicates:
-            - Path=/api/v1/trainees/**
-          filters:
-            - name: JwtAuthentication
-              args:
-                allowedRoles:
-                  - ROLE_TRAINEE
-
-        - id: trainers
-          uri: lb://GYM-APP
-          predicates:
-            - Path=/api/v1/trainers/**
-          filters:
-            - name: JwtAuthentication
-              args:
-                allowedRoles:
-                  - ROLE_TRAINER
-
-        - id: trainings
-          uri: lb://GYM-APP
-          predicates:
-            - Path=/api/v1/trainings/**
-          filters:
-            - name: JwtAuthentication
-              args:
-                allowedRoles:
-                  - ROLE_TRAINEE
-                  - ROLE_TRAINER
-
-        - id: training-report
-          uri: lb://TRAINING-REPORT
-          predicates:
-            - Path=/api/v1/workload/**
-          filters:
-            - name: JwtAuthentication
-              args:
-                allowedRoles:
-                  - ROLE_TRAINEE
-                  - ROLE_TRAINER
-
-        - id: auth-service
-          uri: lb://AUTH-SERVICE
-          predicates:
-            - Path=/api/v1/auth/**
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-
-security:
-  jwt:
-    secret-key: ${JWT_SECRET_KEY}
-    issuer: GymApp
-    expiration-ms: 3600000  # 1 hour
-    refresh-token-expiration-ms: 604800000  # 7 days
-
-
-management:
-  tracing:
-    enabled: true
-    sampling:
-      probability: 1.0 # Adjust sampling rate (1.0 = 100% of requests)
-
-  endpoints:
-    web:
-      exposure:
-        include: "*"
+    config:
+      fail-fast: true

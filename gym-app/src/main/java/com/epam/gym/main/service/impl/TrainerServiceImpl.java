@@ -51,7 +51,7 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     public UserCredentials create(TrainerRequest request) {
-        log.info("Creating trainer for request: {} {}", request.firstName(), request.lastName());
+        log.debug("Creating trainer for request with name: {}", request.firstName());
         var extractedUser = toUser(request);
         var plainPassword = UserUtils.generateRandomPassword();
         var user = userService.create(extractedUser, UserRole.ROLE_TRAINER, plainPassword)
@@ -59,7 +59,7 @@ public class TrainerServiceImpl implements TrainerService {
                         request.firstName() + " " + request.lastName()));
 
         trainerRepository.save(toTrainer(request, user));
-        log.info("Trainer created successfully for username: {}", user.getUsername());
+        log.info("Trainer created successfully for username");
 
         return UserCredentials.builder()
                 .username(user.getUsername())
@@ -82,7 +82,7 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     public TrainerResponse updateTrainerAndUser(TrainerUpdateRequest request, String username) {
-        log.info("Updating trainer and user for username: {}", username);
+        log.debug("Updating trainer and user for username: {}", username);
 
         var trainer = trainerRepository.findByUserUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Trainer not found"));
@@ -94,63 +94,59 @@ public class TrainerServiceImpl implements TrainerService {
 
         trainerRepository.save(trainer);
         var trainees = trainerRepository.getAssignedTrainees(username);
-        log.info("Trainer and user updated successfully for username: {}", username);
+        log.info("Trainer and user updated successfully");
 
         return toTrainerResponse(trainer, trainees);
     }
 
-
     @Override
-    public TrainerResponse getTrainerAndTrainees(String username) {
-        log.info("Fetching trainer and assigned trainees for username: {}", username);
+    public TrainerResponse getTrainerWithTrainees(String username) {
+        log.debug("Fetching trainer and assigned trainees for username: {}", username);
         var trainer = trainerRepository.findByUserUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Trainer with username " + username + " not found"));
 
         var assignedTrainees = trainerRepository.getAssignedTrainees(username);
-        log.info("Successfully fetched trainer and trainees for username: {}", username);
+        log.info("Successfully fetched trainer with trainees");
         return toTrainerResponse(trainer, assignedTrainees);
     }
 
     @Override
     public List<TrainingResponse> findTrainerTrainings(String username, TrainerTrainingFilterRequest filterRequest) {
-        log.info("Fetching trainings for trainer: {} using filters: {}", username, filterRequest);
+        log.debug("Fetching trainings for trainer: {} using filters: {}", username, filterRequest);
+
+        var trainer = trainerRepository.findByUserUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Trainer not found"));
 
         List<Training> trainings;
         if (filterRequest.getPeriodFrom() == null || filterRequest.getPeriodTo() == null) {
-            trainings = trainingRepository.findTrainingsByTrainerUsername(username);
+            trainings = trainingRepository.findTrainingsByTrainerUsername(trainer.getUser().getUsername());
         } else {
             trainings = trainingRepository.findTrainingsByTrainerUsernameAndPeriod(
-                    username,
+                    trainer.getUser().getUsername(),
                     filterRequest.getPeriodFrom(),
                     filterRequest.getPeriodTo());
         }
 
-        log.info("Successfully fetched trainings for trainer: {}", username);
+        log.info("Successfully fetched trainings for trainer");
         return trainings.stream()
                 .map(TrainingMapper::toTrainingResponse)
                 .toList();
     }
 
     @Override
-    public void delete(Long id) {
-        log.info("Deleting trainer with ID: {}", id);
-        trainerRepository.deleteById(id);
-        log.info("Trainer with ID: {} deleted successfully.", id);
-    }
-
-    @Override
     public void delete(String username) {
-        log.info("Deleting trainer by username: {}", username);
+        log.debug("Deleting trainer by username: {}", username);
         var trainerId = trainerRepository.findByUserUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Trainer not found"))
                 .getId();
-        delete(trainerId);
+        trainerRepository.deleteById(trainerId);
 
-        log.info("Sending request to delete security user with username {}", username);
+        log.info("Sending request to delete security user");
         authServiceNotifier.deleteUser(username);
 
-        log.info("Trainer deleted successfully: {}", username);
+        log.info("Trainer deleted successfully");
 
+        log.info("Sending request to remove trainer workload");
         trainingReportNotifier.removeTrainerWorkload(username, UserType.TRAINER);
     }
 }

@@ -1,0 +1,53 @@
+server:
+  port: 0
+
+spring:
+  datasource:
+    username: ${DB_USER_AUTH_USERNAME}
+    password: ${DB_USER_AUTH_PASSWORD}
+    url: ${DB_USER_AUTH_URL}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+  activemq:
+    broker-url: tcp://localhost:61616 # External ActiveMQ broker
+    user: admin                      # ActiveMQ username
+    password: admin                  # ActiveMQ password
+    packages:
+      trust-all: true                # Trust all packages for serialization
+
+security:
+  jwt:
+    secret-key: ${JWT_SECRET_KEY}
+    issuer: GymApp
+    expiration-ms: 3600000  # 1 hour
+    refresh-token-expiration-ms: 604800000  # 7 days
+
+cors:
+  allowed:
+    origins: "http://localhost:[0-9]*"
+    methods: "GET,POST,PUT,DELETE,OPTIONS"
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: false
+    hostname: localhost
+
+logging:
+  pattern:
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} [%clr(%X{traceId:-}){blue}] [%clr(%X{spanId:-}){blue}] [%clr(%thread){cyan}] %clr(%-5level){yellow} %clr(%logger{36}){magenta} - %clr(%msg){faint}%n"
+
+  level:
+    root: info
+
+management:
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0

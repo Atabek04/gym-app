@@ -1,0 +1,23 @@
+server:
+  port: 9876
+
+spring:
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:init/data.sql
+
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: password
+    driver-class-name: org.h2.driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        format_sql: true

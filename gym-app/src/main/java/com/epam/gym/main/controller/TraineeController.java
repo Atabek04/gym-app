@@ -11,10 +11,13 @@ import com.epam.gym.main.dto.UserCredentials;
 import com.epam.gym.main.model.TrainingType;
 import com.epam.gym.main.service.TraineeService;
 import jakarta.annotation.security.PermitAll;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,49 +44,55 @@ public class TraineeController implements TraineeApi {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PermitAll
-    public UserCredentials createTrainee(@RequestBody TraineeRequest request) {
+    public UserCredentials createTrainee(@Valid @RequestBody TraineeRequest request) {
+        log.info("Received request to create trainee");
         return traineeService.create(request);
     }
 
     @Override
     @GetMapping("/{username}")
-    public TraineeResponse getTraineeByUsername(@PathVariable String username) {
-        return traineeService.getTraineeAndTrainers(username);
+    public TraineeResponse getTraineeByUsername(@NotBlank @PathVariable("username") String username) {
+        log.info("Received request to get trainee by username");
+        return traineeService.getTraineeWithTrainers(username);
     }
 
     @Override
     @PutMapping("/{username}")
-    public TraineeResponse updateTrainee(@PathVariable("username") String traineeUsername,
-                                         @RequestBody TraineeUpdateRequest request) {
+    public TraineeResponse updateTrainee(@NotBlank @PathVariable("username") String traineeUsername,
+                                         @Valid @RequestBody TraineeUpdateRequest request) {
+        log.info("Received request to update trainee");
         return traineeService.updateTraineeAndUser(request, traineeUsername);
     }
 
     @Override
+    @Transactional
     @PutMapping("/{username}/trainers")
-    public TraineeResponse updateTrainers(@PathVariable String username,
+    public TraineeResponse updateTrainers(@NotBlank @PathVariable("username") String username,
                                           @RequestBody List<String> trainerUsernames) {
+        log.info("Received request to update trainers list for trainee");
         traineeService.updateTrainers(username, trainerUsernames);
-        return traineeService.getTraineeAndTrainers(username);
+        return traineeService.getTraineeWithTrainers(username);
     }
 
     @Override
     @GetMapping("/{username}/trainers")
-    public List<BasicTrainerResponse> getNotAssignedTrainers(@PathVariable String username) {
+    public List<BasicTrainerResponse> getNotAssignedTrainers(@PathVariable("username") String username) {
         return traineeService.getNotAssignedTrainers(username);
     }
 
     @Override
     @GetMapping("/{username}/trainings")
     public List<TrainingResponse> getTraineeTrainings(
-            @PathVariable String username,
-            @RequestParam(required = false)
+            @NotBlank @PathVariable("username") String username,
+            @RequestParam(required = false, name = "periodFrom")
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime periodFrom,
-            @RequestParam(required = false)
+            @RequestParam(required = false, name = "periodTo")
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime periodTo,
-            @RequestParam(required = false) String trainerName,
-            @RequestParam(required = false) TrainingType trainingType) {
+            @RequestParam(required = false, name = "trainerName") String trainerName,
+            @RequestParam(required = false, name = "trainingType") TrainingType trainingType) {
 
-        TraineeTrainingFilterRequest filterRequest = TraineeTrainingFilterRequest.builder()
+        log.info("Received request to get trainee trainings");
+        var filterRequest = TraineeTrainingFilterRequest.builder()
                 .periodFrom(periodFrom)
                 .periodTo(periodTo)
                 .trainerName(trainerName)
@@ -96,7 +105,8 @@ public class TraineeController implements TraineeApi {
     @Override
     @DeleteMapping("/{username}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteTrainee(@PathVariable String username) {
+    public void deleteTrainee(@NotBlank @PathVariable("username") String username) {
+        log.info("Received request to delete trainee");
         traineeService.delete(username);
     }
 }

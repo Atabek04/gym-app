@@ -19,8 +19,6 @@ public interface TraineeService {
     @Transactional
     UserCredentials create(TraineeRequest request);
 
-    Optional<Trainee> create(Trainee trainee);
-
     void update(Trainee trainee, Long id);
 
     TraineeResponse updateTraineeAndUser(TraineeUpdateRequest request, String username);
@@ -28,11 +26,9 @@ public interface TraineeService {
     Optional<Trainee> findByUsername(String username);
 
     @Transactional
-    TraineeResponse getTraineeAndTrainers(String username);
+    TraineeResponse getTraineeWithTrainers(String username);
 
     List<Trainer> getAssignedTrainers(String username);
-
-    void delete(Long id);
 
     void delete(String username);
 

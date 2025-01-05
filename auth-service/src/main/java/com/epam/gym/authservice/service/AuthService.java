@@ -36,17 +36,18 @@ public class AuthService {
 
     public Map<String, String> login(UserCredentials credentials) {
         var user = userRepository.findByUsername(credentials.username())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new AuthenticationException("User not found"));
+        log.debug("login:: User found: {}. Checking for lock and auth...", user.getUsername());
         checkAccountLock(user);
         authenticateUser(credentials);
-        log.info("Generating tokens for user: {}", credentials.username());
+        log.debug("login:: User {} authenticated. Generating tokens... ", user.getUsername());
         return generateTokens(user);
     }
 
     private void checkAccountLock(SecurityUser user) {
         if (!user.isAccountNonLocked() && user.getLockoutTime() != null) {
             if (Duration.between(user.getLockoutTime(), LocalDateTime.now()).toMinutes() < 5) {
-                log.error("Account is locked for user: {}", user.getUsername());
+                log.error("checkAccountLock:: Account is locked for user: {}", user.getUsername());
                 throw new AuthenticationException("Account is locked. Please try again later.");
             } else {
                 user.setAccountNonLocked(true);
@@ -59,11 +60,10 @@ public class AuthService {
 
     private void authenticateUser(UserCredentials credentials) {
         try {
-            log.info("Authenticating user: {} {}", credentials.username(), credentials.password());
+            log.debug("authenticateUser:: Authenticating user {} ...", credentials.username());
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(credentials.username(), credentials.password())
             );
-            log.info("User authenticated: {}", credentials.username());
         } catch (BadCredentialsException e) {
             log.error("Failed login attempt for user: {}", credentials.username());
             handleFailedLoginAttempt(credentials.username());
@@ -89,7 +89,7 @@ public class AuthService {
 
     private Map<String, String> generateTokens(SecurityUser user) {
         var userDetails = userDetailsService.loadUserByUsername(user.getUsername());
-        log.info("User details loaded for user: {}", userDetails.getUsername());
+        log.debug("generateToken:: User details loaded for user: {}", userDetails.getUsername());
 
         var jwt = jwtUtil.generateToken(userDetails, user.getRole());
         var refreshToken = refreshTokenService.createRefreshToken(userDetails.getUsername());
@@ -97,7 +97,7 @@ public class AuthService {
         Map<String, String> responseBody = new HashMap<>();
         responseBody.put("accessToken", jwt);
         responseBody.put("refreshToken", refreshToken);
-        log.info("Tokens generated for user: {}", userDetails.getUsername());
+        log.info("generateTokens:: Tokens generated for user: {}", userDetails.getUsername());
         return responseBody;
     }
 
@@ -111,9 +111,9 @@ public class AuthService {
     }
 
     public void changePassword(UserNewPasswordCredentials credentials) {
-        log.info("Password change requested for user: {}", credentials.username());
+        log.debug("Password change requested for user: {}", credentials.username());
         var user = userRepository.findByUsername(credentials.username())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + credentials.username()));
+                .orElseThrow(() -> new AuthenticationException("User not found with username: " + credentials.username()));
 
         if (passwordEncoder.matches(credentials.oldPassword(), user.getPassword())) {
             user.setPassword(passwordEncoder.encode(credentials.newPassword()));
@@ -125,6 +125,7 @@ public class AuthService {
     }
 
     public void logout(String username) {
+        log.debug("Logout requested for user: {}", username);
         refreshTokenService.deleteByUser(username);
     }
 }

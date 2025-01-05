@@ -47,3 +47,4 @@ build/
 /logs/
 /data/
 /env.properties
+/config-server/.gitattributes

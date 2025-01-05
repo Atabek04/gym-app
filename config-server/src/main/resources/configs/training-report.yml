@@ -1,0 +1,43 @@
+server:
+  port: 0
+
+spring:
+  data:
+    mongodb:
+      uri: ${MONGO_DB_URL}
+      auto-index-creation: true
+
+  cloud:
+    config:
+      fail-fast: true
+
+  activemq:
+    broker-url: tcp://localhost:61616 # External ActiveMQ broker
+    user: admin                      # ActiveMQ username
+    password: admin                  # ActiveMQ password
+    packages:
+      trust-all: true                # Trust all packages for serialization
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    preferIpAddress: false
+    hostname: localhost
+
+management:
+  endpoints:
+    web.exposure:
+      include: info,health # And any other endpoints you wish to expose
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+
+logging:
+  pattern:
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} [%clr(%X{traceId:-}){blue}] [%clr(%X{spanId:-}){blue}] [%clr(%thread){cyan}] %clr(%-5level){yellow} %clr(%logger{36}){magenta} - %clr(%msg){faint}%n"
+
+  level:
+    root: INFO

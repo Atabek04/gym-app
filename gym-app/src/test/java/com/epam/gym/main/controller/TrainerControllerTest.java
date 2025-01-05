@@ -92,7 +92,7 @@ class TrainerControllerTest {
                 .trainees(Collections.emptyList())
                 .build();
 
-        when(trainerService.getTrainerAndTrainees("Super.Trainer")).thenReturn(response);
+        when(trainerService.getTrainerWithTrainees("Super.Trainer")).thenReturn(response);
 
         mockMvc.perform(get("/api/v1/trainers/{username}", "Super.Trainer")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -101,7 +101,7 @@ class TrainerControllerTest {
                 .andExpect(jsonPath("$.firstName").value("Super"))
                 .andExpect(jsonPath("$.specialization").value("CARDIO"));
 
-        verify(trainerService, times(1)).getTrainerAndTrainees("Super.Trainer");
+        verify(trainerService, times(1)).getTrainerWithTrainees("Super.Trainer");
     }
 
     @Test

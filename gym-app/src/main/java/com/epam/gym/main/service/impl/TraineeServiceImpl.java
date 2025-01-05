@@ -23,6 +23,7 @@ import com.epam.gym.main.service.TraineeService;
 import com.epam.gym.main.service.UserService;
 import com.epam.gym.main.util.UserType;
 import com.epam.gym.main.util.UserUtils;
+import jakarta.ws.rs.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -57,27 +58,22 @@ public class TraineeServiceImpl implements TraineeService {
     @Transactional
     @Override
     public UserCredentials create(TraineeRequest request) {
-        log.info("Creating trainee");
+        log.debug("Creating trainee with name {} ...", request.firstName());
 
         var extractedUser = toUser(request);
         var plainPassword = UserUtils.generateRandomPassword();
 
         var createdUser = userService.create(extractedUser, UserRole.ROLE_TRAINEE, plainPassword)
                 .orElseThrow(() -> new IllegalStateException("Failed to create user for trainee"));
+        log.debug("User created successfully with username: {}", createdUser.getUsername());
 
         traineeRepository.save(toTrainee(request, createdUser));
-        log.info("Trainee created successfully with username: {}", createdUser.getUsername());
+        log.info("Trainee created successfully");
 
         return UserCredentials.builder()
                 .username(createdUser.getUsername())
                 .password(plainPassword)
                 .build();
-    }
-
-    @Override
-    public Optional<Trainee> create(Trainee trainee) {
-        log.info("Creating trainee with ID: {}", trainee.getId());
-        return Optional.of(traineeRepository.save(trainee));
     }
 
     @Override
@@ -94,17 +90,18 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     public TraineeResponse updateTraineeAndUser(TraineeUpdateRequest request, String username) {
-        log.info("Updating trainee and user for username: {}", username);
+        log.debug("Updating trainee and user for username: {}", username);
 
         var oldTrainee = traineeRepository.findByUserUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Trainee with this username not found"));
 
         var updatedUser = userService.update(toUser(request), oldTrainee.getUser().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("User with this username not found"));
-
+        log.debug("User updated successfully for username: {}", username);
+        
         update(toTrainee(request, updatedUser), oldTrainee.getId());
 
-        log.info("Fetching assigned trainers for trainee: {}", username);
+        log.debug("Fetching assigned trainers for trainee: {}", username);
         var trainerList = getAssignedTrainers(username).stream().toList();
 
         var updatedTrainee = findByUsername(username)
@@ -123,20 +120,22 @@ public class TraineeServiceImpl implements TraineeService {
     @Override
     @Transactional
     public void updateTrainers(String username, List<String> trainerUsernames) {
-        log.info("Updating trainers for trainee: {}", username);
+        log.debug("updateTrainersList:: Updating trainers for trainee: {}", username);
 
         if (trainerUsernames.isEmpty()) {
             removeAllTrainers(username);
+            log.debug("updateTrainersList:: Removed all trainers for trainee: {}", username);
             return;
         }
 
-        Trainee trainee = getTraineeByUsername(username);
+        Trainee trainee = findByUsername(username).orElseThrow(
+                () -> new BadRequestException("Trainee with username " + username + " not found"));
         Set<String> currentTrainerUsernames = getCurrentTrainerUsernames(username);
 
         addNewTrainers(trainerUsernames, currentTrainerUsernames, trainee);
         removeTrainersNotInList(trainerUsernames, username);
 
-        log.info("Successfully updated trainers for trainee: {}", username);
+        log.info("updateTrainersList:: Successfully updated trainers list for trainee");
     }
 
     private Set<String> getCurrentTrainerUsernames(String username) {
@@ -147,7 +146,7 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     private void removeAllTrainers(String username) {
-        log.info("Removing all trainers for trainee: {}", username);
+        log.debug("updateTrainersList:: Removing all trainers for trainee: {}", username);
         List<Training> currentTrainings = trainingRepository.findByTraineeUsername(username);
         trainingRepository.deleteAll(currentTrainings);
     }
@@ -171,7 +170,7 @@ public class TraineeServiceImpl implements TraineeService {
 
         if (!notFoundTrainers.isEmpty()) {
             log.warn("Some trainers not found: {}", notFoundTrainers);
-            throw new ResourceNotFoundException("Trainers not found: " + String.join(", ", notFoundTrainers));
+            throw new BadRequestException("Trainers not found: " + String.join(", ", notFoundTrainers));
         }
     }
 
@@ -185,7 +184,7 @@ public class TraineeServiceImpl implements TraineeService {
         training.setTrainingDuration(DUMMY_TRAINING_DURATION);
 
         trainingRepository.save(training);
-        log.info("Training created for trainee: {} with trainer: {}", trainee.getUser().getUsername(),
+        log.debug("createNewTraining:: Training created for trainee: {} with trainer: {}", trainee.getUser().getUsername(),
                 trainer.getUser().getUsername());
     }
 
@@ -195,18 +194,19 @@ public class TraineeServiceImpl implements TraineeService {
                 .toList();
 
         if (!trainingsToRemove.isEmpty()) {
-            log.info("Removing trainers not in the new list for trainee: {}", username);
+            log.debug("removeTrainersNotInList:: Removing trainers not in the new list for trainee: {}", username);
             trainingRepository.deleteAll(trainingsToRemove);
         }
     }
 
     @Transactional
     @Override
-    public TraineeResponse getTraineeAndTrainers(String username) {
-        log.info("Fetching trainee and trainers by username: {}", username);
+    public TraineeResponse getTraineeWithTrainers(String username) {
+        log.info("getTraineeWithTrainers:: Fetching trainee by username: {}", username);
+        var trainee = traineeRepository.findByUserUsername(username).orElseThrow(
+                () -> new ResourceNotFoundException("Trainee with username " + username + " not found"));
         var trainerList = getAssignedTrainers(username).stream().toList();
-        var trainee = getTraineeByUsername(username);
-        log.info("Successfully fetched trainee and trainers for username: {}", username);
+        log.info("getTraineeWithTrainers:: Successfully fetched trainee");
         return toTraineeResponse(trainee, trainerList);
     }
 
@@ -217,19 +217,20 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     public List<BasicTrainerResponse> getNotAssignedTrainers(String username) {
-        log.info("Fetching not assigned trainers for trainee: {}", username);
+        log.debug("Fetching not assigned trainers for trainee: {}", username);
         var trainers = traineeRepository.getNotAssignedTrainers(username).stream()
                 .map(TrainerMapper::toBasicTrainerResponse)
                 .toList();
-        log.info("Successfully fetched not assigned trainers for trainee: {}", username);
+        log.info("Successfully fetched not assigned trainers");
         return trainers;
     }
 
     @Override
     public List<TrainingResponse> getTraineeTrainings(String username, TraineeTrainingFilterRequest filterRequest) {
-        log.info("Fetching trainings for trainee: {} with filters: {}", username, filterRequest);
+        log.debug("Fetching trainings for trainee: {} with filters: {}", username, filterRequest);
 
-        Trainee trainee = getTraineeByUsername(username);
+        Trainee trainee = findByUsername(username).orElseThrow(
+                () -> new ResourceNotFoundException("Trainee with username " + username + " not found"));
         List<Training> trainings;
 
         if (filterRequest.getPeriodFrom() == null && filterRequest.getPeriodTo() == null
@@ -240,7 +241,7 @@ public class TraineeServiceImpl implements TraineeService {
         } else {
             trainings = getTraineeTrainingByAllCriteria(trainee.getId(), filterRequest);
         }
-        log.info("Successfully fetched trainings for trainee: {}", username);
+        log.info("Successfully fetched trainings for trainee");
         return trainings.stream().map(TrainingMapper::toTrainingResponse).toList();
     }
 
@@ -268,28 +269,18 @@ public class TraineeServiceImpl implements TraineeService {
         );
     }
 
-
-    private Trainee getTraineeByUsername(String username) {
-        return traineeRepository.findByUserUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Trainee with username " + username + " not found"));
-    }
-
-    @Override
-    public void delete(Long id) {
-        log.info("Deleting trainee with ID: {}", id);
-        traineeRepository.deleteById(id);
-        log.info("Trainee with ID: {} deleted successfully.", id);
-    }
-
     @Override
     public void delete(String username) {
-        log.info("Deleting trainee by username: {}", username);
-        traineeRepository.deleteByUserUsername(username);
+        log.debug("Deleting trainee by username: {}", username);
+        var trainee = traineeRepository.findByUserUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Trainee with username " + username + " not found"));
 
-        log.info("Sending request to delete security user with username {}", username);
+        traineeRepository.deleteByUserUsername(trainee.getUser().getUsername());
+
+        log.info("Sending request to delete security user");
         authServiceNotifier.deleteUser(username);
-        log.info("Trainee with username: {} deleted successfully.", username);
 
+        log.info("Sending request to remove trainer workload for trainee");
         trainingReportNotifier.removeTrainerWorkload(username, UserType.TRAINEE);
     }
 }

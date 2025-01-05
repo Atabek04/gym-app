@@ -17,7 +17,7 @@ public interface TrainingRepository extends JpaRepository<Training, Long> {
     List<TrainingTypeEntity> getAllTrainingTypes();
 
     @Query("FROM Training t WHERE t.trainee.user.username = :username")
-    List<Training> findByTraineeUsername(String username);
+    List<Training> findByTraineeUsername(@Param("username") String username);
 
     @Modifying
     @Transactional

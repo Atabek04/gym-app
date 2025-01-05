@@ -1,7 +1,9 @@
 package com.epam.gym.authservice.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 
+@Builder
 public record UserNewPasswordCredentials(
         @NotBlank(message = "Username is required")
         String username,

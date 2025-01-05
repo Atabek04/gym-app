@@ -1,24 +1,24 @@
 package com.epam.gym.main;
 
 import com.epam.gym.main.dto.AuthUserDTO;
+import com.epam.gym.main.exception.CustomResponseErrorHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @SpringBootApplication(scanBasePackages = "com.epam.gym")
 @EnableDiscoveryClient
-@EnableFeignClients
 public class GymApp {
     public static void main(String[] args) {
         SpringApplication.run(GymApp.class, args);
@@ -40,5 +40,12 @@ public class GymApp {
         converter.setTypeIdMappings(typeIdMappings);
 
         return converter;
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        var restTemplate = new RestTemplate();
+        restTemplate.setErrorHandler(new CustomResponseErrorHandler());
+        return restTemplate;
     }
 }
