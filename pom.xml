@@ -31,7 +31,7 @@
         <logback.classic.version>1.5.12</logback.classic.version>
         <gson.version>2.11.0</gson.version>
         <h2.version>2.3.232</h2.version>
-        <assertj.core.version>3.26.3</assertj.core.version>
+        <assertj.core.version>3.27.2</assertj.core.version>
         <maven.dependency.version>3.7.0</maven.dependency.version>
     </properties>
 

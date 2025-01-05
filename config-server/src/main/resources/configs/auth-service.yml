@@ -6,6 +6,7 @@ spring:
     username: ${DB_USER_AUTH_USERNAME}
     password: ${DB_USER_AUTH_PASSWORD}
     url: ${DB_USER_AUTH_URL}
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:

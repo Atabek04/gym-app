@@ -20,6 +20,9 @@
         <eureka-client.version>4.2.0</eureka-client.version>
         <activemq-broker.version>6.1.4</activemq-broker.version>
         <jackson.version>2.18.2</jackson.version>
+        <cucumber.java.version>7.18.1</cucumber.java.version>
+        <cucumber.junit.version>7.18.0</cucumber.junit.version>
+        <cucumber.spring.version>7.18.1</cucumber.spring.version>
     </properties>
     <dependencies>
         <!--    ==== Spring Boot Starters ====    -->
@@ -58,6 +61,25 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
             <version>${spring.boot.version}</version>
+        </dependency>
+
+        <!--    ==== Cucumber Testing ====    -->
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>${cucumber.java.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-junit</artifactId>
+            <version>${cucumber.junit.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-spring</artifactId>
+            <version>${cucumber.spring.version}</version>
         </dependency>
     </dependencies>
 </project>

@@ -18,11 +18,13 @@
     <properties>
         <postgresql.version>42.7.4</postgresql.version>
         <json-path.version>2.9.0</json-path.version>
-        <assertj.version>3.26.3</assertj.version>
-        <flyway.version>11.1.0</flyway.version>
         <resilience4j.version>3.2.0</resilience4j.version>
         <activemq-broker.version>6.1.4</activemq-broker.version>
         <surefire-plugin.version>3.5.2</surefire-plugin.version>
+        <cucumber.java.version>7.18.1</cucumber.java.version>
+        <cucumber.junit.version>7.18.0</cucumber.junit.version>
+        <cucumber.spring.version>7.18.1</cucumber.spring.version>
+        <jersey.common.version>3.1.9</jersey.common.version>
     </properties>
 
     <dependencies>
@@ -71,12 +73,23 @@
             <version>${postgresql.version}</version>
         </dependency>
 
-        <!-- ==== Testing Tools ==== -->
+        <!--    ==== Cucumber Testing ====    -->
         <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>${assertj.version}</version>
-            <scope>test</scope>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>${cucumber.java.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-junit</artifactId>
+            <version>${cucumber.junit.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-spring</artifactId>
+            <version>${cucumber.spring.version}</version>
         </dependency>
 
         <!-- ==== DB Migrations ==== -->
@@ -86,17 +99,11 @@
             <version>${json-path.version}</version>
         </dependency>
 
+        <!-- ==== Additional Tools ==== -->
         <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-            <version>${flyway.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-database-postgresql</artifactId>
-            <version>${flyway.version}</version>
-            <scope>runtime</scope>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-common</artifactId>
+            <version>${jersey.common.version}</version>
         </dependency>
 
         <dependency>
@@ -116,12 +123,6 @@
                 <configuration>
                     <argLine>-Dspring.profiles.active=test</argLine>
                 </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.flywaydb</groupId>
-                <artifactId>flyway-maven-plugin</artifactId>
-                <version>${flyway.version}</version>
             </plugin>
         </plugins>
     </build>
