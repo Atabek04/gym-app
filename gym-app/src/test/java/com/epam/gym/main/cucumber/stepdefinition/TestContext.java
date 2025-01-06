@@ -1,4 +1,4 @@
-package com.epam.gym.main.cucumber.stepdefinition.trainee;
+package com.epam.gym.main.cucumber.stepdefinition;
 
 import lombok.Getter;
 import lombok.Setter;

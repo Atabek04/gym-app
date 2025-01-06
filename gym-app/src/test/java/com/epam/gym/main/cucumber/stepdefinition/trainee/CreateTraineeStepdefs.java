@@ -1,5 +1,6 @@
 package com.epam.gym.main.cucumber.stepdefinition.trainee;
 
+import com.epam.gym.main.cucumber.stepdefinition.TestContext;
 import com.epam.gym.main.dto.TraineeRequest;
 import com.epam.gym.main.dto.UserCredentials;
 import io.cucumber.java.en.And;

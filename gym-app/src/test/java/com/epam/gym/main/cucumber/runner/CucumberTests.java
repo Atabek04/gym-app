@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
-        features = "src/test/resources/cucumber/trainer_controller.feature",
+        features = "src/test/resources/cucumber/training_controller.feature",
         glue = {"com.epam.gym.main.cucumber.stepdefinition",
                 "com.epam.gym.main.cucumber"},
         plugin = {

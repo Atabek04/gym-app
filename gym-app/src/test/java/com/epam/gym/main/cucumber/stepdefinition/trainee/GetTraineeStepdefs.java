@@ -1,5 +1,6 @@
 package com.epam.gym.main.cucumber.stepdefinition.trainee;
 
+import com.epam.gym.main.cucumber.stepdefinition.TestContext;
 import com.epam.gym.main.dto.TraineeResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
