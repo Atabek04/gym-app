@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -25,6 +26,14 @@ public class TrainerWorkloadService {
 
     public void createTrainerWorkload(TrainerWorkloadRequest request) {
         log.debug("Processing trainer workload with username: {}", request.getUsername());
+
+        if (request.getUsername() == null || request.getUsername().isBlank()) {
+            throw new IllegalArgumentException("Username is required");
+        }
+        if (request.getTrainingDate().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Training date cannot be in the past");
+        }
+
         var workload = findOrCreateTrainerWorkload(request);
 
         var year = YearMonth.from(request.getTrainingDate()).getYear();
