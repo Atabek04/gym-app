@@ -1,13 +1,9 @@
 INSERT INTO training_type (id, training_type_name)
-VALUES (1, 'Yoga');
-INSERT INTO training_type (id, training_type_name)
-VALUES (2, 'Cardio');
-INSERT INTO training_type (id, training_type_name)
-VALUES (3, 'Strength Training');
-INSERT INTO training_type (id, training_type_name)
-VALUES (4, 'Pilates');
-INSERT INTO training_type (id, training_type_name)
-VALUES (5, 'HIIT');
+VALUES (1, 'CARDIO'),
+       (2, 'STRENGTH_TRAINING'),
+       (3, 'YOGA'),
+       (4, 'PILATES'),
+       (5, 'HIIT');
 ALTER SEQUENCE training_type_id_seq RESTART WITH 6;
 
 INSERT INTO users_table (id, first_name, last_name, username)
