@@ -5,15 +5,6 @@ spring:
   security:
     enabled: false
 
-  r2dbc:
-    url: ${DB_POSTGRES_REACTIVE_URL}
-    username: ${DB_POSTGRES_USERNAME}
-    password: ${DB_POSTGRES_PASSWORD}
-
-  jpa:
-    hibernate:
-      ddl-auto: none
-
   main:
     allow-bean-definition-overriding: true
     web-application-type: reactive

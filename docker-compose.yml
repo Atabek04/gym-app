@@ -1,38 +1,141 @@
-version: '3.8'
-
 services:
-  spring-boot-app:
-    build: gym-app
-    container_name: spring-boot-app
-    ports:
-      - "8091:8090"  # Expose internal port 8090 on Docker's port 8091
-    networks:
-      - monitoring
 
-  prometheus:
-    image: prom/prometheus:v2.29.2
-    container_name: prometheus
-    volumes:
-      - ./src/main/resources/prometheus.yml:/etc/prometheus/prometheus.yml  # Mount the Prometheus config
-    command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
+  config-server:
+    build: ./config-server
+    container_name: config-server
     ports:
-      - "9090:9090"  # Expose Prometheus
+      - "8888:8888"
     networks:
-      - monitoring
+      - microservices-network
+    restart: always
 
-  grafana:
-    image: grafana/grafana:8.3.3
-    container_name: grafana
+  eureka-server:
+    build: ./eureka-server
+    container_name: eureka-server
+    depends_on:
+      - config-server
     ports:
-      - "3000:3000"  # Expose Grafana
-    volumes:
-      - grafana-data:/var/lib/grafana  # Store Grafana data in a volume
+      - "8761:8761"
     networks:
-      - monitoring
+      - microservices-network
+    restart: always
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - microservices-network
+    restart: always
+
+  activemq:
+    image: rmohr/activemq
+    container_name: activemq
+    depends_on:
+      - eureka-server
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+    networks:
+      - microservices-network
+    restart: always
+
+  postgresql:
+    image: postgres:15
+    container_name: postgresql
+    ports:
+      - "5432:5432"
+    networks:
+      - microservices-network
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: always
+
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    networks:
+      - microservices-network
+    volumes:
+      - mongo-data:/data/db
+    restart: always
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    depends_on:
+      - config-server
+      - eureka-server
+      - zipkin
+    ports:
+      - "8095:8095"
+    networks:
+      - microservices-network
+    environment:
+      - JWT_SECRET_KEY
+    env_file:
+      - env.properties
+    restart: always
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    depends_on:
+      - config-server
+      - eureka-server
+      - postgresql
+      - activemq
+      - zipkin
+    networks:
+      - microservices-network
+    environment:
+      - DB_USER_AUTH_URL
+      - DB_USER_AUTH_USERNAME
+      - DB_USER_AUTH_PASSWORD
+      - JWT_SECRET_KEY
+    env_file:
+      - env.properties
+    restart: always
+
+  gym-app:
+    build: ./gym-app
+    container_name: gym-app
+    depends_on:
+      - config-server
+      - eureka-server
+      - postgresql
+      - zipkin
+      - activemq
+    networks:
+      - microservices-network
+    environment:
+      - DB_POSTGRES_URL
+      - DB_POSTGRES_USERNAME
+      - DB_POSTGRES_PASSWORD
+    restart: always
+
+  training-report:
+    build: ./training-report
+    container_name: training-report
+    depends_on:
+      - config-server
+      - eureka-server
+      - mongodb
+      - zipkin
+      - activemq
+    networks:
+      - microservices-network
+    environment:
+      - MONGO_DB_URL
+    restart: always
 
 networks:
-  monitoring:
+  microservices-network:
+    driver: bridge
 
 volumes:
-  grafana-data:
+  postgres-data:
+  mongo-data:
